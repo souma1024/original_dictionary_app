@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+#fvm(Flutter Version Management)
+.fvmrc
+/.fvm/versions
+/.fvm/release
+/.fvm/version
