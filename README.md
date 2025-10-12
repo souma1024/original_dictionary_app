@@ -28,21 +28,30 @@
 [参考サイト](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/getting_started_windows#3.android-studio-%E3%81%AE%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97)
 
 ## Git Githubについて
+[参考サイト：インストール方法](https://qiita.com/takeru-hirai/items/4fbe6593d42f9a844b1c)
+
+
+よく使う基本コマンド
+```
+git clone    #
+```
 
 ## セットアップ手順
-``` powershell
+```
+#powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
 scoop bucket add extras
 scoop install fvm
 
 git clone https://github.com/souma1024/original_dictionary_app.git
+cd original_dictionary_app
+
 original_dictionary_app> fvm install
 original_dictionary_app> fvm use
 original_dictionary_app> fvm flutter pub get
 original_dictionary_app> fvm flutter run
 ```
 
-### fvm (Flutter Version Management)のインストール手順
 
 
 
