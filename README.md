@@ -30,19 +30,39 @@
 ## Git Githubについて
 [参考サイト：インストール方法](https://qiita.com/takeru-hirai/items/4fbe6593d42f9a844b1c)
 
+git    とは　ファイルの変更履歴を保存して、いつでも過去の状態に戻したりすることができるツール。
+github とは  ソースコードをアップロードし簡単に管理、共有できるWebサービス
+
+#### git・githubにおける重要な概念
+リモートリポジトリ・・・ネットワーク上のサーバー（Github）に保存され、複数の開発者で共有するための、データや変更履歴を管理する場所（リポジトリ）（クラウド上に保存）
+ローカルリポジトリ・・・ホストPCに作成されるリポジトリ（自身のPCに保存）
+
+ブランチ・・・　プロジェクトのコードの履歴を分岐させ、他の作業に影響を与えずに新しい機能開発やバグ修正を行うための仕組み
+　　　　　　　　つまり、デフォルトのmainブランチを分岐させて、developブランチを作った場合、developブランチを変更してもmainブランチには何も影響しない
+        　　　 したがって、機能ごとにブランチを分けたりすることで開発しやすくなる。（後で、mainブランチやdevelopブランチに統合すればよい）
 
 よく使う基本コマンド
 ```
-git clone https://example.com/main.git   #リモートリポジトリからローカルリポジトリにコードをダウンロード　初回のみ
+git clone https://example.com/main.git
+# リモートリポジトリをローカルに複製（初回のみ）
 
-git pull origin (branch)   # リモートリポジトリの(branch)のコードをローカルリポジトリにダウンロード
+git pull origin (branch)
+# リモートの(branch)の変更を取得し、現在のブランチに取り込む
 
-git push origin (branch)   #　ローカルリポジトリから（branch）をリモートリポジトリにアップロード
+git push origin (branch)
+# ローカルの(branch)の変更をリモートの同名ブランチに反映する
 
-git add (file or directory)  # (file or directory)をステージング（追跡）をする。
+git add (file or directory)
+# (file or directory)の変更をコミット対象としてステージング（追跡対象に入れる）する
 
-git commit [-m "説明文"]                  # ステージングされた(file or directory)の変更を確定する。
+git commit -m "メッセージ"
+# ステージングされた変更を1つの履歴としてローカルに保存する
 
+git switch -c (new branch name)
+#　ローカルリポジトリに新しいブランチを作成し、そのブランチに移動する
+
+git checkout (branch name)
+#  (branch name)に移動する
 ```
 
 ## セットアップ手順
@@ -65,6 +85,7 @@ original_dictionary_app> fvm flutter run
 
 ## 参考サイト
 [flutter dart](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
 
 
