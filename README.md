@@ -54,6 +54,8 @@ original_dictionary_app> fvm flutter pub get
 original_dictionary_app> fvm flutter run
 ```
 
+## 参考サイト
+[flutter dart](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
 
 
 
