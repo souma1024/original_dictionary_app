@@ -39,7 +39,9 @@ git clone    #
 ## セットアップ手順
 ```
 #powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+
 scoop bucket add extras
 scoop install fvm
 
@@ -51,6 +53,7 @@ original_dictionary_app> fvm use
 original_dictionary_app> fvm flutter pub get
 original_dictionary_app> fvm flutter run
 ```
+
 
 
 
