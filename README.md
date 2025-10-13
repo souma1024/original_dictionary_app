@@ -33,7 +33,16 @@
 
 よく使う基本コマンド
 ```
-git clone    #
+git clone https://example.com/main.git   #リモートリポジトリからローカルリポジトリにコードをダウンロード　初回のみ
+
+git pull origin (branch)   # リモートリポジトリの(branch)のコードをローカルリポジトリにダウンロード
+
+git push origin (branch)   #　ローカルリポジトリから（branch）をリモートリポジトリにアップロード
+
+git add (file or directory)  # (file or directory)をステージング（追跡）をする。
+
+git commit [-m "説明文"]                  # ステージングされた(file or directory)の変更を確定する。
+
 ```
 
 ## セットアップ手順
@@ -56,6 +65,7 @@ original_dictionary_app> fvm flutter run
 
 ## 参考サイト
 [flutter dart](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
 
 
