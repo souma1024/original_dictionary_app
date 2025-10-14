@@ -125,9 +125,15 @@ original_dictionary_app> fvm flutter run
 ```
 
 ## 開発の進め方
+
+### 0.ローカルリポジトリをリモートリポジトリで上書き mainブランチで以下のコマンドを実行
+```
+  git pull origin main
+```
+
 ### 1. 開発したい機能をIssueの中から選ぶ
 
-### 2. developブランチから以下のコマンドを行いブランチを分ける。
+### 2. mainブランチから以下のコマンドを行いブランチを分ける。
 ```
   git switch -c (branch名) #(branch名)はIssueに書いてあるブランチ名を使ってください
 ```
@@ -136,9 +142,9 @@ original_dictionary_app> fvm flutter run
   git add .                          
   git commit -m "(コメントを書く)"
 ```
-### 4.完成したら、以下のコマンドを行いリモートリポジトリにコードをpush
+### 4.完成したら、以下のコマンドを行いリモートリポジトリにローカルリポジトリをpush
 ```
-  git push origin (branch名) #(branch名)は現在のブランチ名
+  git push -u origin (branch名) #(branch名)は現在のブランチ名
 ```
 ### 5. 4のコマンドをするとgithub上にPR(Pull Request)が作成要求がされる。コメントなどを追加して、PRを作成
 
@@ -146,10 +152,13 @@ original_dictionary_app> fvm flutter run
 
 ### 7.無事にマージできたら完了
 
-### 8. 1に戻り新しい機能を開発
+### 8. リモートリポジトリgithubに作成されたブランチを削除 (<span style="color:red;">mainブランチは絶対に削除しない！！</span>)
+
+### 9. 1に戻り新しい機能を開発
 
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
 
 
