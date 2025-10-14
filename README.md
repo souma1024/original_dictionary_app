@@ -126,6 +126,7 @@ original_dictionary_app> fvm flutter run
 
 ## 開発の進め方
 ### 1. 開発したい機能をIssueの中から選ぶ
+
 ### 2. developブランチから以下のコマンドを行いブランチを分ける。
 ```
   git switch -c (branch名) #(branch名)はIssueに書いてあるブランチ名を使ってください
@@ -149,5 +150,6 @@ original_dictionary_app> fvm flutter run
 
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
 
