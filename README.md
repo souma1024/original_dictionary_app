@@ -88,18 +88,55 @@ git branch
 #powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-
+#  scoopというwindowsで動くパッケージマネージャをインストール。
+```
+```
 scoop bucket add extras
 scoop install fvm
-
-git clone https://github.com/souma1024/original_dictionary_app.git
-cd original_dictionary_app
-
-original_dictionary_app> fvm install
-original_dictionary_app> fvm use
-original_dictionary_app> fvm flutter pub get
-original_dictionary_app> fvm flutter run
+#  scoop経由で、fvm(flutter version management)をインストール
 ```
+```
+git clone https://github.com/souma1024/original_dictionary_app.git　 #
+cd original_dictionary_app
+#  このリポジトリをホストPCにコピーしている。
+```
+```
+original_dictionary_app> fvm install
+#  指定したバージョン(3.35.5)のFlutter SDKをローカルPCにインストールのみをするコマンド
+
+original_dictionary_app> fvm use
+#  指定したバージョンを使用するコマンド
+
+original_dictionary_app> fvm flutter pub get
+#  指定されたバージョンにおいて、pubspec.yaml の依存パッケージを取得する
+
+original_dictionary_app> fvm flutter run
+
+```
+
+## 開発の進め方
+### 1. 開発したい機能をIssueの中から選ぶ
+### 2. developブランチから以下のコマンドを行いブランチを分ける。
+```
+  git switch -c (branch名) #(branch名)はIssueに書いてあるブランチ名を使ってください
+```
+### 3.コードを記述していきIssueの機能を完成させる。細かい機能を完成させたらコミットすると良い！
+```
+  git add .                          
+  git commit -m "(コメントを書く)"
+```
+### 4.完成したら、以下のコマンドを行いリモートリポジトリにコードをpush
+```
+  git push origin (branch名) #(branch名)は現在のブランチ名
+```
+### 5. 4のコマンドをするとgithub上にPR(Pull Request)が作成要求がされる。コメントなどを追加して、PRを作成
+
+### 6. レビューをし、問題がなければマージ、そうでなければコードを修正する。
+
+### 7.無事にマージできたら完了
+
+### 8. 1に戻り新しい機能を開発
 
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
