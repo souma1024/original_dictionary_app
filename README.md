@@ -84,34 +84,44 @@ git branch
 ```
 
 ## セットアップ手順
+
+1. scoopというwindowsで動くパッケージマネージャをインストール。
 ```
 #powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-#  scoopというwindowsで動くパッケージマネージャをインストール。
 ```
+
+2. scoop経由で、fvm(flutter version management)をインストール
 ```
 scoop bucket add extras
 scoop install fvm
-#  scoop経由で、fvm(flutter version management)をインストール
 ```
+
+3. このリポジトリをホストPCにコピー。
 ```
 git clone https://github.com/souma1024/original_dictionary_app.git　 #
-cd original_dictionary_app
-#  このリポジトリをホストPCにコピーしている。
 ```
+4. ディレクトリを移動
+```
+cd original_dictionary_app
+```
+
+5. 指定したバージョン(今回は、3.35.5)のFlutter SDKをローカルPCにインストールのみをするコマンド
 ```
 original_dictionary_app> fvm install
-#  指定したバージョン(3.35.5)のFlutter SDKをローカルPCにインストールのみをするコマンド
-
+```
+6. 指定したバージョンを使用するコマンド
+```
 original_dictionary_app> fvm use
-#  指定したバージョンを使用するコマンド
-
+```
+7. 指定されたバージョンにおいて、pubspec.yaml の依存パッケージを取得する
+```
 original_dictionary_app> fvm flutter pub get
-#  指定されたバージョンにおいて、pubspec.yaml の依存パッケージを取得する
-
+```
+8. 指定された Flutter バージョンでアプリを実行
+```
 original_dictionary_app> fvm flutter run
-
 ```
 
 ## 開発の進め方
@@ -139,4 +149,5 @@ original_dictionary_app> fvm flutter run
 
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
