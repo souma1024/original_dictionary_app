@@ -1,6 +1,9 @@
 # original_dict_app
 オリジナル辞書アプリ
 
+[企画書](./docs/e-team_kikaku_up.pdf)
+[基本設計書](./docs/e-team_kihon_up.pdf)
+
 ## 使用技術
 #### フロントエンド　（モバイルアプリ）
 - Flutter 3.35.5 （FVMによりバージョン固定）
@@ -158,6 +161,7 @@ original_dictionary_app> fvm flutter run
 
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
 
 
