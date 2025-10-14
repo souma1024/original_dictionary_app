@@ -159,8 +159,35 @@ original_dictionary_app> fvm flutter run
 
 ### 9. 1に戻り新しい機能を開発
 
+
+## ディレクトリ構成案
+```
+lib/
+├── main.dart        ← ★ ここがアプリの入口
+│
+├── screens/         ←　画面ごとに機能を分けるためのディレクトリ
+│   ├── cards_creation/   ← カード作成画面
+│   │   └── cards.dart
+│   └── home/　           ← ホーム画面
+│       ├── home_main.dart
+│       ├── home_detail.dart
+│       └── home_edit.dart
+│
+├── controllers/      ← 状態管理
+│
+├── models/           ← データクラス（cardsやtagsなど）
+│
+├── data/
+│   └── local/
+│       ├── app_database.dart  ← DB初期化
+│       └── word_dao.dart      ← CRUD操作
+│
+└── utils/            ← バリデータ、共通メソッド、定数など
+```
+
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+
 
 
 
