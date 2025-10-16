@@ -178,15 +178,15 @@ lib/
 ├── models/           ← データクラス（cardsやtagsなど）
 │
 ├── data/
-│   └── local/
-│       ├── app_database.dart  ← DB初期化
-│       └── word_dao.dart      ← CRUD操作
+│   └──── app_database.dart  ← DB初期化
+│       
 │
 └── utils/            ← バリデータ、共通メソッド、定数など
 ```
 
 ## 参考サイト
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro)
+[Flutter公式サイト](https://flutter.ctrnost.com/)
 
 
 
