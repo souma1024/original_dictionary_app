@@ -12,10 +12,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
       return const MaterialApp(
         home: Scaffold(
-          body: Center(
-            child: Text(
-              'Hello World',
-              style: TextStyle(fontSize: 32),
+          //body: Center(
+            TextButton(
+              onPressed:{
+
+              },
+              child: const Text('次へ'),
             ),
           ),
         ),
