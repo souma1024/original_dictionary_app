@@ -1,4 +1,4 @@
-class Card {
+class CardEntity {
   final int? id;
   final String name;
   final String intro;
@@ -7,7 +7,7 @@ class Card {
   final DateTime? updatedAt; //作成時は値が入らないので、null許容
 
   // デフォルトコンストラクタ
-  Card({
+  CardEntity({
     this.id,
     required this.name,
     required this.intro,
@@ -17,8 +17,8 @@ class Card {
   });
 
   // 名前付きコンストラクタ
-  factory Card.fromMap(Map<String, dynamic> map) {
-    return Card(
+  factory CardEntity.fromMap(Map<String, dynamic> map) {
+    return CardEntity(
       id: map['id'] as int?,
       name: map['name'] as String,
       intro: map['intro'] as String,
