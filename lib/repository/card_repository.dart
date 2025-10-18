@@ -1,5 +1,5 @@
 import '../data/app_database.dart';
-import '../models/card.dart';
+import '../models/card_entity.dart';
 
 class CardRepository {
   CardRepository._();
@@ -14,7 +14,7 @@ class CardRepository {
   static const String colUpdatedAt = 'updated_at';
 
   // 「DBの生データ → 安全な Dart のモデル」変換
-  Card fromRow(Map<String, Object?> row) {
+  CardEntity fromRow(Map<String, Object?> row) {
     final m = Map<String, dynamic>.from(row);
 
     // is_fave を 0/1 に正規化（bool / "true"/"1" も許容）
@@ -46,17 +46,17 @@ class CardRepository {
           : m[colUpdatedAt];
     }
 
-    return Card.fromMap(m);
+    return CardEntity.fromMap(m);
   }
 
-  Future<List<Card>> getCards() async {
+  Future<List<CardEntity>> getCards() async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(table);
     // ← 必ず fromRow を通して型を整える
     return rows.map((r) => fromRow(r)).toList();
   }
 
-  Future<Card?> getCardById(int id) async {
+  Future<CardEntity?> getCardById(int id) async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(
       table,
@@ -70,7 +70,7 @@ class CardRepository {
   }
 
   /// 戻り値: 追加されたレコードの rowId
-  Future<int> insertCard(Card card) async {
+  Future<int> insertCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
     return db.insert(
       table,
@@ -89,7 +89,7 @@ class CardRepository {
   }
 
   /// 戻り値: 影響行数（0 or 1）
-  Future<int> updateCard(Card card) async {
+  Future<int> updateCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
     final map = card.toMap();
     map[colUpdatedAt] = DateTime.now().toIso8601String(); // ← 自動更新
