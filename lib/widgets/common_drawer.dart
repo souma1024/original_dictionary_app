@@ -14,6 +14,18 @@ class CommonDrawer extends StatelessWidget {
             title: Text('ホーム'),
           ),
           ListTile(
+            leading: Icon(Icons.book),
+            title: Text('単語一覧'),
+          ),
+          ListTile(
+            leading: Icon(Icons.tag),
+            title: Text('タグ一覧'),
+          ),
+          ListTile(
+            leading: Icon(Icons.question_answer),
+            title: Text('クイズ'),
+          ),
+          ListTile(
             leading: Icon(Icons.settings),
             title: Text('設定'),
           ),
