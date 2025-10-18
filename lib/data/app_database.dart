@@ -39,10 +39,10 @@ class AppDatabase {
         await db.execute('''
           CREATE TABLE cards (
             id INTEGER PRIMARY KEY,
-            name VARCHAR NOT NULL,
-            intro TEXT NOT NULL,
+            name TEXT NOT NULL,
+            intro TEXT NOT NULL DEFAULT '',
             is_fave INTEGER NOT NULL DEFAULT 0 CHECK (is_fave IN (0,1)),
-            created_at TEXT,
+            created_at NOT NULL TEXT DEFAULT (datetime('now')),
             updated_at TEXT
           );
         ''');
