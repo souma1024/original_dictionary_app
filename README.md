@@ -165,6 +165,7 @@ original_dictionary_app> fvm flutter run
 lib/
 ├── main.dart        ← ★ ここがアプリの入口
 │
+├── widgets/         ← 画面に必要なUI部品（ボタンや入力ボックスなど）を入れるためのディレクトリ
 ├── screens/         ←　画面ごとに機能を分けるためのディレクトリ
 │   ├── cards_creation/   ← カード作成画面
 │   │   └── cards.dart
@@ -176,6 +177,7 @@ lib/
 ├── controllers/      ← 状態管理
 │
 ├── models/           ← データクラス（cardsやtagsなど）
+├── repository/       ← データクラスのCRUD操作などを行う
 │
 ├── data/
 │   └──── app_database.dart  ← DB初期化
@@ -188,6 +190,7 @@ lib/
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro) <br>
 [Flutter公式サイト](https://flutter.ctrnost.com/) <br>
 [Flutter公式アイコン](https://api.flutter.dev/flutter/material/Icons-class.html)
+
 
 
 
