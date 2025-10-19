@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// drawerはハンバーガーメニューを押すと出てくるサイドバーのこと
 class CommonDrawer extends StatelessWidget {
   const CommonDrawer({super.key});
 
