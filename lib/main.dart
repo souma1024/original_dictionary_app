@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/home_screen.dart';
+// import 'package:original_dict_app/data/app_database.dart';
 
 
-void main() {
+void main() async {
+  // WidgetsFlutterBinding.ensureInitialized(); テーブル設計を変更したときのみ有効にする
+  // await AppDatabase.instance.resetForDev();
   runApp(const MyApp());
 }
 
@@ -22,7 +25,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),   // ← これで確実に初期画面が出る
+      home: const HomeScreen(),  // ← これで確実に初期画面が出る
       // routes: {
       //   '/': (_) => const HomeScreen(),画面が増えたらここを書き換える。
       // },
