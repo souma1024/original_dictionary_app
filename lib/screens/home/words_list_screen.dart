@@ -1,6 +1,7 @@
 import 'package:original_dict_app/models/card_entity.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
+import 'package:original_dict_app/utils/db/time_helper.dart';
 import 'package:flutter/material.dart';
 
 class WordListScreen extends StatelessWidget {
@@ -29,6 +30,7 @@ class WordListScreen extends StatelessWidget {
             return WordCard(
               name: word.name,
               intro: word.intro,
+              updatedAt: TimeHelper.formatDateTime(word.updatedAt),
             );
           },
         );

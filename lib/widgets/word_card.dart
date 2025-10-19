@@ -4,11 +4,13 @@ class WordCard extends StatelessWidget {
 
   final String name;
   final String intro;
+  final String updatedAt;
 
   const WordCard({
     super.key,
     required this.name,
-    required this.intro
+    required this.intro,
+    required this.updatedAt,
   });
 
   @override
@@ -17,6 +19,7 @@ class WordCard extends StatelessWidget {
       child: ListTile(
         title: Text(name),
         subtitle: Text(intro),
+        trailing: Text(updatedAt),
       ),
     );
   }
