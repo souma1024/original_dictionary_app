@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart' show kDebugMode; // 追加
 
 class AppDatabase {
 
@@ -14,6 +15,19 @@ class AppDatabase {
   static const _dbVersion = 1;
 
   Database? _db;
+
+  // 開発中のみ、手動で全消しできるメソッド
+  Future<void> resetForDev() async {
+    assert(kDebugMode, 'resetForDev() は開発ビルドのみで使ってください');
+    // 既存接続を閉じる
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
+    }
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, _dbName);
+    await deleteDatabase(path); // -wal / -shm も含めて削除
+  }
 
   // databaseという名前のgetterを記述している。(get は予約語で、get (名前)~ でgetterを定義)
   // AppDatabase.instance.database　でdatabaseを取得。
@@ -42,8 +56,8 @@ class AppDatabase {
             name TEXT NOT NULL,
             intro TEXT NOT NULL DEFAULT '',
             is_fave INTEGER NOT NULL DEFAULT 0 CHECK (is_fave IN (0,1)),
-            created_at NOT NULL TEXT DEFAULT (datetime('now')),
-            updated_at TEXT
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
           );
         ''');
 
