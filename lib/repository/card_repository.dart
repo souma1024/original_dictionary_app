@@ -49,6 +49,40 @@ class CardRepository {
     return CardEntity.fromMap(m);
   }
 
+  String _toLikePattern(String raw) {
+    final s = raw.trim();
+    if (s.isEmpty) return '';
+    return '%${s.replaceAll('\\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_')}%';
+  }
+
+  Future<List<CardEntity>> searchByNameContains(
+    String query, {
+    int limit = 50,
+    int offset = 0,
+    bool caseInsensitive = true,
+  }) async {
+    final q = _toLikePattern(query);
+    if (q.isEmpty) return const [];
+
+    final db = await AppDatabase.instance.database;
+
+    // 大小無視は LOWER(name) LIKE LOWER(?) を使うのが移植性高い
+    final where = caseInsensitive
+        ? 'LOWER($colName) LIKE LOWER(?) ESCAPE "\\"'
+        : '$colName LIKE ? ESCAPE "\\"';
+
+    final rows = await db.query(
+      table,
+      where: where,
+      whereArgs: [q],
+      limit: limit,
+      offset: offset,
+      orderBy: '$colName ASC, $colId ASC',
+    );
+
+    return rows.map(fromRow).toList();
+  }
+
   Future<List<CardEntity>> getCards() async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(table);
