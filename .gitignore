@@ -49,3 +49,9 @@ app.*.map.json
 /.fvm/versions
 /.fvm/release
 /.fvm/version
+# fvm & Flutter-related
+.fvm/
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
