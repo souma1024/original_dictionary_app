@@ -17,6 +17,7 @@ class _MyAppState extends State<MyApp> {
   final _introCtrl = TextEditingController();
   bool _isSaving = false;
 
+
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -50,6 +51,9 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  // @override
+  // Widget build()
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -77,6 +81,12 @@ class _MyAppState extends State<MyApp> {
                           ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
                           : const Text('カード追加'),
                     ),
+    IconButton(
+        iconSize: 100,
+        onPressed: () {print("hello");},
+        color: Colors.blue,
+        icon: Icon(Icons.add_circle_outline),
+)
                   ],
                 ),
               ),
