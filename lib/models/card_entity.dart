@@ -1,6 +1,7 @@
 class CardEntity {
   final int? id;
   final String name;
+  final String nameHira;
   final String intro;
   final bool isFave;
   final DateTime createdAt;
@@ -10,6 +11,7 @@ class CardEntity {
   CardEntity({
     this.id,
     required this.name,
+    required this.nameHira,
     required this.intro,
     required this.isFave,
     required this.createdAt,
@@ -21,6 +23,7 @@ class CardEntity {
     return CardEntity(
       id: map['id'] as int?,
       name: map['name'] as String,
+      nameHira: map['name_hira'] as String, 
       intro: map['intro'] as String,
       isFave: (map['is_fave'] as int) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -32,6 +35,7 @@ class CardEntity {
     return {
       'id': id,
       'name': name,
+      'name_hira': nameHira,
       'intro': intro,
       'is_fave': isFave ? 1 : 0,
       'created_at': createdAt.toIso8601String(),

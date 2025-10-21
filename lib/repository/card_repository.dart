@@ -1,13 +1,16 @@
 import '../data/app_database.dart';
 import '../models/card_entity.dart';
+import 'package:jp_transliterate/jp_transliterate.dart';
 
 class CardRepository {
   CardRepository._();
   static final CardRepository instance = CardRepository._();
 
+  static const String fts5Table = 'cards_fts';
   static const String table = 'cards';
   static const String colId = 'id';
   static const String colName = 'name';
+  static const String colNameHira = 'name_hira';
   static const String colIntro = 'intro';
   static const String colIsFave = 'is_fave';
   static const String colCreatedAt = 'created_at';
@@ -106,10 +109,8 @@ class CardRepository {
   /// 戻り値: 追加されたレコードの rowId
   Future<int> insertCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
-    return db.insert(
-      table,
-      card.toMap(),
-    );
+    final rowId = await db.insert(table, card.toMap());
+    return rowId;
   }
 
   /// 戻り値: 影響行数（0 or 1）
