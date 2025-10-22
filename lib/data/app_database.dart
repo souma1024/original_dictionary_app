@@ -86,16 +86,16 @@ class AppDatabase {
         ''');
 
         // 検索用に作った仮想テーブル
-      //   await db.execute('''
-      //     CREATE VIRTUAL TABLE cards_fts USING fts5(
-      //       name,            
-      //       name_hira,       
-      //       intro,           
-      //       intro_hira,      
-      //       card_id UNINDEXED,
-      //       tokenize='unicode61'
-      //     );
-      //   ''');
+        await db.execute('''
+          CREATE VIRTUAL TABLE cards_fts USING fts4(
+            name,            
+            name_hira,       
+            intro,           
+            intro_hira,      
+            card_id UNINDEXED,
+            tokenize='unicode61'
+          );
+        ''');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         // 例:
