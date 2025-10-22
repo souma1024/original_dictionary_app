@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: TagDisplay(),
+        ),
+      ),
+    );
+  }
+}
+
+class TagDisplay extends StatelessWidget {
+  const TagDisplay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // 表示するタグのリスト
+    final tags = ['Flutter', 'Dart', 'Mobile', 'UI'];
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'Hello World',
+          style: TextStyle(fontSize: 32),
+        ),
+        const SizedBox(height: 20), // 間隔
+        Wrap(
+          spacing: 8, // タグ間の横スペース
+          runSpacing: 4, // タグの縦スペース（折り返し時）
+          children: tags.map((tag) => Chip(label: Text(tag))).toList(),
+        ),
+      ],
+    );
+  }
+}
