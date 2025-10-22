@@ -1,4 +1,4 @@
-import 'package:original_dict_app/models/card_entity.dart';
+import 'package:original_dict_app/dto/card_hit.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
 import 'package:original_dict_app/widgets/search_box.dart';
@@ -13,22 +13,24 @@ class WordListScreen extends StatefulWidget {
 }
 
 class _WordListScreenState extends State<WordListScreen> {
-  String _query = '';
   // late: 非nullだがinitStateで後から必ず代入する前提
-  late Future<List<CardEntity>> _future;
+  late Future<List<CardHit>> _future;
 
   @override
   void initState() {
     super.initState();
-    _future = CardRepository.instance.getCards();
+    _future = CardRepository.instance.listForDisplay('');
   }
 
   void _onSearchChanged(String value) {
+    final query = value.trim();
+
+    // クエリに応じて Future を準備
+    final future = CardRepository.instance.listForDisplay(query);
+
+    // 状態更新（await の後にまとめて）
     setState(() {
-      _query = value.trim();
-      _future = _query.isEmpty
-          ? CardRepository.instance.getCards()
-          : CardRepository.instance.searchByNameContains(_query);
+      _future = future;
     });
   }
 
@@ -41,29 +43,29 @@ class _WordListScreenState extends State<WordListScreen> {
           onChanged: _onSearchChanged, // ← ここを紐づける
         ),
         Expanded(
-          child: FutureBuilder<List<CardEntity>>(
+          child: FutureBuilder<List<CardHit>>(
             future: _future,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return const Center(child: Text('エラーが発生しました'));
+                return Center(child: Text('エラー: ${snapshot.error}'));
               }
 
-              final words = snapshot.data ?? [];
-              if (words.isEmpty) {
+              final hits = snapshot.data ?? const [];
+              if (hits.isEmpty) {
                 return const Center(child: Text('該当する単語がありません'));
               }
 
               return ListView.builder(
-                itemCount: words.length,
+                itemCount: hits.length,
                 itemBuilder: (context, index) {
-                  final word = words[index];
+                  final h = hits[index];
                   return WordCard(
-                    name: word.name,
-                    intro: word.intro,
-                    updatedAt: TimeHelper.formatDateTime(word.updatedAt),
+                    name: h.card.name,
+                    intro: h.card.intro,
+                    updatedAt: TimeHelper.formatDateTime(h.card.updatedAt),
                   );
                 },
               );
