@@ -1,46 +1,171 @@
-import 'package:original_dict_app/data/app_database.dart';
+import 'package:original_dict_app/repository/card_repository.dart';
+import 'package:original_dict_app/models/card_entity.dart';
+
 
 Future<void> insertSampleData() async {
-  final db = await AppDatabase.instance.database;
-
-  // 既存データを消したい場合（必要に応じて）
-  // await db.delete('card_tags');
-  // await db.delete('tags');
-  await db.delete('cards');
-
-  // タグを5個くらい作成
-  // final tagIds = <int>[];
-  // for (int i = 1; i <= 5; i++) {
-  //   final id = await db.insert('tags', {
-  //     'name': 'タグ$i',
-  //   });
-  //   tagIds.add(id);
-  // }
-
-  // カードを30件作成
-  for (int i = 1; i <= 30; i++) {
-    await db.insert('cards', {
-      'name': '単語$i',
-      'intro': 'これはサンプル $i の説明です。少しだけ長い文章の時はどうなるか',
-      'is_fave': i % 5 == 0 ? 1 : 0, // 5件に1件だけお気に入り
-    });
+  final List<CardEntity> testCards = [
+    CardEntity(
+      name: "富士山麓オウムなく",
+      nameHira: "ふじさんろくおうむなく",
+      intro: "富士山のふもとではオウムの鳴き声も聞こえない。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "桜花爛漫",
+      nameHira: "おうからんまん",
+      intro: "満開の桜が美しく咲き誇るさま。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "一期一会",
+      nameHira: "いちごいちえ",
+      intro: "一生に一度の出会いを大切にするという意味。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "風林火山",
+      nameHira: "ふうりんかざん",
+      intro: "武田信玄の軍旗に由来する四字熟語。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "花鳥風月",
+      nameHira: "かちょうふうげつ",
+      intro: "自然の美しさや季節の風情を楽しむこと。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "温故知新",
+      nameHira: "おんこちしん",
+      intro: "昔のことを学び、新しい知識を得る。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "以心伝心",
+      nameHira: "いしんでんしん",
+      intro: "言葉を交わさずとも心が通じ合うこと。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "天衣無縫",
+      nameHira: "てんいむほう",
+      intro: "飾り気がなく、自然体であること。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "灯台下暗し",
+      nameHira: "とうだいもとくらし",
+      intro: "身近なことほど気づきにくいというたとえ。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "百花繚乱",
+      nameHira: "ひゃっかりょうらん",
+      intro: "多くの花が一斉に咲くように、優れた人が並び立つこと。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "青天白日",
+      nameHira: "せいてんはくじつ",
+      intro: "疑いが晴れて堂々と胸を張れること。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "山紫水明",
+      nameHira: "さんしすいめい",
+      intro: "山や川が美しく澄んでいる自然の風景。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "春夏秋冬",
+      nameHira: "しゅんかしゅうとう",
+      intro: "一年の四つの季節。四季折々の変化。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "雨過天晴",
+      nameHira: "うかてんせい",
+      intro: "困難を乗り越えて事態が好転すること。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "静寂無音",
+      nameHira: "せいじゃくむおん",
+      intro: "音が全くせず、非常に静まり返っていること。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "光陰矢の如し",
+      nameHira: "こういんやのごとし",
+      intro: "月日が過ぎるのは非常に早いというたとえ。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "紅葉一片",
+      nameHira: "こうよういっぺん",
+      intro: "一枚のもみじの葉が風に舞う情景。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "雪月風花",
+      nameHira: "せつげつふうか",
+      intro: "自然の美しい景物を愛でる風雅な心。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "一期一笑",
+      nameHira: "いちごいっしょう",
+      intro: "出会いの瞬間に笑顔を交わすことの尊さ。",
+      isFave: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    CardEntity(
+      name: "星河一天",
+      nameHira: "せいがいってん",
+      intro: "夜空に満天の星が輝くさま。",
+      isFave: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+  ];
+  for (final card in testCards) {
+    await CardRepository.instance.insertCard(card);
   }
-    // ランダムで0〜2個タグをつける
-  //   final rnd = Random();
-  //   final tagCount = rnd.nextInt(3); // 0,1,2
-  //   final used = <int>{};
-
-  //   for (int t = 0; t < tagCount; t++) {
-  //     final tagId = tagIds[rnd.nextInt(tagIds.length)];
-  //     if (used.contains(tagId)) continue;
-  //     used.add(tagId);
-
-  //     await db.insert('card_tags', {
-  //       'card_id': cardId,
-  //       'tag_id': tagId,
-  //     });
-  //   }
-  // }
-
-  print('✅ サンプルデータ（30件）を投入しました!');
 }
