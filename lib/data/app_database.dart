@@ -56,6 +56,7 @@ class AppDatabase {
             name TEXT NOT NULL,
             name_hira TEXT NOT NULL,
             intro TEXT NOT NULL DEFAULT '',
+            intro_hira TEXT NOT NULL DEFAULT '',
             is_fave INTEGER NOT NULL DEFAULT 0 CHECK (is_fave IN (0,1)),
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
