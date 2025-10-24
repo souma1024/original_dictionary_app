@@ -1,6 +1,9 @@
 import 'package:original_dict_app/data/app_database.dart';
+import 'package:original_dict_app/dto/card_preview.dart';
 import 'package:original_dict_app/models/card_entity.dart';
 import 'package:original_dict_app/dto/card_hit.dart'  ;
+import 'package:original_dict_app/utils/security/input_sanitizer.dart';
+import 'package:original_dict_app/data/mapper/card_mapper.dart';
 import 'package:jp_transliterate/jp_transliterate.dart';
 
 class CardRepository {
@@ -13,122 +16,128 @@ class CardRepository {
   static const String colName = 'name';
   static const String colNameHira = 'name_hira';
   static const String colIntro = 'intro';
+  static const String colIntroHira = 'intro_hira';
   static const String colIsFave = 'is_fave';
   static const String colCreatedAt = 'created_at';
   static const String colUpdatedAt = 'updated_at';
+  static const String colCardId = 'card_id';
 
-  // 「DBの生データ → 安全な Dart のモデル」変換
-  CardEntity fromRow(Map<String, Object?> row) {
-    final m = Map<String, dynamic>.from(row);
-
-    // is_fave を 0/1 に正規化（bool / "true"/"1" も許容）
-    final fav = m[colIsFave];
-    if (fav is bool) {
-      m[colIsFave] = fav ? 1 : 0;
-    } else if (fav is String) {
-      m[colIsFave] = (fav == '1' || fav.toLowerCase() == 'true') ? 1 : 0;
-    }
-
-    // created_at / updated_at が int(UNIX ms) なら ISO8601 へ
-    String toIso(dynamic v, {bool required = false}) {
-      if (v == null) {
-        if (required) {
-          // created_at はモデル側で required なので最低限のフォールバック
-          return DateTime.now().toIso8601String();
-        }
-        return DateTime.now().toIso8601String();
-      }
-      if (v is int) return DateTime.fromMillisecondsSinceEpoch(v).toIso8601String();
-      if (v is String) return v; // すでに ISO とみなす
-      return DateTime.now().toIso8601String();
-    }
-
-    m[colCreatedAt] = toIso(m[colCreatedAt], required: true);
-    if (m[colUpdatedAt] != null) {
-      m[colUpdatedAt] = (m[colUpdatedAt] is int)
-          ? DateTime.fromMillisecondsSinceEpoch(m[colUpdatedAt] as int).toIso8601String()
-          : m[colUpdatedAt];
-    }
-
-    return CardEntity.fromMap(m);
-  }
-
-  String _normalize(String s) {
-    return s.trim(); //文字列の前後から空白文字を取り除く
+  /// 検索 or 全件をまとめて取得（UI向け統一口）
+  Future<List<CardHit>> listForDisplay(
+    String query, {int limit = 15, int offset = 0}) {
+    final q = query.trim();
+    return q.isEmpty ? getCardsAsHits(limit: limit, offset: offset) : searchCards(q, limit: limit, offset: offset);
   }
 
   Future<List<CardHit>> searchCards(
     String rawQuery, {
-    int limit = 20,
+    int limit = 15,
+    int offset = 0, // offsetは、それまでの行をスキップする（offset=10なら11行目から読み込まれる）
+  }) async {
+    final db = await AppDatabase.instance.database;
+    final qNorm = rawQuery;
+
+    final contains = isVeryShort(qNorm);
+
+    if (!contains) {
+
+      // 列ごとの式を作る（各列内は AND）
+      final nameExpr      = colExpr(colName, toks(qNorm));
+      final nameHiraExpr  = colExpr(colNameHira, toks(qNorm));
+      final introExpr     = colExpr(colIntro, toks(qNorm));
+      final introHiraExpr = colExpr(colIntroHira, toks(qNorm));
+
+      // 列間は OR
+      final matchExpr = [nameExpr, nameHiraExpr, introExpr, introHiraExpr]
+          .where((e) => e.isNotEmpty)
+          .join(' OR ');
+
+      final sql = '''
+        SELECT 
+          m.$colId,
+          m.$colName,
+          m.$colIntro,
+          m.$colUpdatedAt
+        FROM $fts4Table
+        JOIN $table AS m ON m.$colId = $fts4Table.$colCardId
+        WHERE $fts4Table MATCH ?
+        ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
+        LIMIT ? OFFSET ?
+      ''';
+
+      final rows = await db.rawQuery(sql, [matchExpr, limit, offset]);
+      return rows.map((r) => CardHit(card: CardPreview.fromMap(r), snippet: null)).toList();
+    } else {
+        final normTokens = toks(qNorm).map((t) => '%${escapeLike(t)}%').toList();
+
+        final sql = '''
+          SELECT 
+            m.$colId,
+            m.$colName, 
+            m.$colIntro,
+            m.$colUpdatedAt
+          FROM $table AS m
+          WHERE
+            (${List.filled(normTokens.length, 'm.name LIKE ? ESCAPE \'\\\'').join(' AND ')})
+            OR
+            (${List.filled(normTokens.length, 'm.name_hira LIKE ? ESCAPE \'\\\'').join(' AND ')})
+            OR
+            (${List.filled(normTokens.length, 'm.intro LIKE ? ESCAPE \'\\\'').join(' AND ')})
+            OR
+            (${List.filled(normTokens.length, 'm.intro_hira LIKE ? ESCAPE \'\\\'').join(' AND ')})
+          ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
+          LIMIT ? OFFSET ?
+        ''';
+        final args = [...normTokens, ...normTokens, ...normTokens, ...normTokens, limit, offset];
+        final rows = await db.rawQuery(sql, args);
+        // 自前ハイライト（簡易）
+        return rows.map((r) => CardHit(card: CardPreview.fromMap(r), snippet: null)).toList();
+    }
+  }
+
+  // カードを生成するディスプレイ用
+  Future<List<CardHit>> getCardsAsHits({
+    int limit = 15,
     int offset = 0,
   }) async {
     final db = await AppDatabase.instance.database;
+    final rows = await db.query(
+      table, // $table
+      columns: [colId, colName, colIntro, colUpdatedAt], // 必要列だけ
+      orderBy: 'datetime($colUpdatedAt) DESC, $colId DESC',
+      limit: limit,
+      offset: offset,
+    );
+    return rows
+        .map((m) => CardHit(
+              card: CardPreview.fromMap(m), // 直接Map→CardPreview
+              snippet: null,
+            ))
+        .toList();
+  }
 
-    final qNorm = _normalize(rawQuery);
-    if (qNorm.isEmpty) {
-      // 空クエリ → 新着順で返す（FTS 不使用）
-      final rows = await db.query(
-        table,
-        orderBy: 'datetime($colUpdatedAt) DESC, $colId DESC',
-        limit: limit,
-        offset: offset,
-      );
-      return rows.map((r) => CardHit(card: CardEntity.fromMap(r))).toList();
-    }
-
-    // ひらがな化（クエリも両表記で検索）
-    final hira = (await JpTransliterate.transliterate(kanji: qNorm)).hiragana;
-
-    // トークン分割
-    Iterable<String> toks(String s) =>
-        s.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
-
-    String toPrefix(String t) {
-      // 引用符や空白は落とす（最小限のサニタイズ）
-      final safe = t.replaceAll('"', '').replaceAll(RegExp(r'\s+'), '');
-      return '$safe*';
-    }
-
-    // 列ごとの式を作る（各列内は AND）
-    final nameExpr      = toks(qNorm).map((t) => 'name:${toPrefix(t)}').join(' ');
-    final nameHiraExpr  = toks(hira).map((t) => 'name_hira:${toPrefix(t)}').join(' ');
-    final introHiraExpr = toks(hira).map((t) => 'intro_hira:${toPrefix(t)}').join(' ');
-
-    // 列間は OR
-    final matchExpr = [nameExpr, nameHiraExpr, introHiraExpr]
-        .where((e) => e.isNotEmpty)
-        .join(' OR ');
-
+  // フルエンティティ取得（詳細画面などで使用）
+  Future<List<CardEntity>> getCards({
+    int limit = 15,
+    int offset = 0,
+  }) async {
+    final db = await AppDatabase.instance.database;
     final sql = '''
-      SELECT m.*,
-            snippet(${CardRepository.fts4Table}, '<b>', '</b>', '…', 2) AS snip
-      FROM ${CardRepository.fts4Table}
-      JOIN ${CardRepository.table} AS m ON m.${CardRepository.colId} = ${CardRepository.fts4Table}.card_id
-      WHERE ${CardRepository.fts4Table} MATCH ?
-      ORDER BY datetime(m.${CardRepository.colUpdatedAt}) DESC, m.${CardRepository.colId} DESC
+      SELECT
+        m.$colId,
+        m.$colName,
+        m.$colNameHira,
+        m.$colIntro,
+        m.$colIntroHira,
+        m.$colIsFave,
+        m.$colCreatedAt,
+        m.$colUpdatedAt
+      FROM $table AS m
+      ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
       LIMIT ? OFFSET ?
     ''';
-
-    final rows = await db.rawQuery(sql, [matchExpr, limit, offset]);
-    return rows.map((r) => CardHit(card: CardRepository.instance.fromRow(r), snippet: r['snip'] as String?)).toList();
-  }
-
-  Future<List<CardHit>> getCardsAsHits() async {
-    final cards = await getCards();
-    return cards.map((c) => CardHit(card: c, snippet: null)).toList();
-  }
-
-  /// 検索 or 全件をまとめて取得（UI向け統一口）
-  Future<List<CardHit>> listForDisplay(String query) {
-    final q = query.trim();
-    return q.isEmpty ? getCardsAsHits() : searchCards(q);
-  }
-
-  Future<List<CardEntity>> getCards() async {
-    final db = await AppDatabase.instance.database;
-    final rows = await db.query(table);
-    // ← 必ず fromRow を通して型を整える
-    return rows.map((r) => fromRow(r)).toList();
+    final rows = await db.rawQuery(sql, [limit, offset]);
+    return rows.map((r) => CardMapper.toEntity(r)).toList(); 
   }
 
   Future<CardEntity?> getCardById(int id) async {
@@ -141,7 +150,7 @@ class CardRepository {
     );
     if (rows.isEmpty) return null;
     // ← List なので first を渡す
-    return fromRow(rows.first);
+    return CardMapper.toEntity(rows.first);
   }
 
   /// 戻り値: 追加されたレコードの rowId
@@ -158,20 +167,21 @@ class CardRepository {
 
       // メインテーブル用の map を補正（name_hira を必ず入れる）
       final map = card.toMap();
-      map['name_hira'] = nameHira;
+      map[colNameHira] = nameHira;
+      map[colIntroHira] = introHira;
       // id をDB採番に任せたい場合は、念のため null へ
-      if (map['id'] != null) map['id'] = null;
+      if (map[colId] != null) map[colId] = null;
 
       // メイン挿入
       final rowId = await txn.insert(table, map);
 
       // FTS 側も挿入
       await txn.insert(fts4Table, {
-        'name': card.name,
-        'name_hira': nameHira,
-        'intro': card.intro,
-        'intro_hira': introHira,
-        'card_id': rowId,
+        colName: card.name,
+        colNameHira: nameHira,
+        colIntro: card.intro,
+        colIntroHira: introHira,
+        colCardId: rowId,
       });
 
       return rowId;
@@ -182,8 +192,8 @@ class CardRepository {
   Future<int> deleteCard(int id) async {
     final db = await AppDatabase.instance.database;
     return await db.transaction((txn) async {
-      await txn.delete(fts4Table, where: 'card_id = ?', whereArgs: [id]);
-      final count = await txn.delete(table, where: 'id = ?', whereArgs: [id]);
+      await txn.delete(fts4Table, where: '$colCardId = ?', whereArgs: [id]);
+      final count = await txn.delete(table, where: '$colId = ?', whereArgs: [id]);
       return count;
     });
   }
@@ -192,7 +202,12 @@ class CardRepository {
   Future<int> updateCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
     final map = card.toMap();
+    final nameData  = await JpTransliterate.transliterate(kanji: card.name);
+    final introData = await JpTransliterate.transliterate(kanji: card.intro);
+
     map[colUpdatedAt] = DateTime.now().toIso8601String(); // ← 自動更新
+    map[colNameHira]  = nameData.hiragana;
+    map[colIntroHira] = introData.hiragana;
 
     return await db.transaction((txn) async {
       final affected = await txn.update(
@@ -202,16 +217,13 @@ class CardRepository {
         whereArgs: [card.id],
       );
 
-      final nameData  = await JpTransliterate.transliterate(kanji: card.name);
-      final introData = await JpTransliterate.transliterate(kanji: card.intro);
-
-      await txn.delete(fts4Table, where: 'card_id = ?', whereArgs: [card.id]);
+      await txn.delete(fts4Table, where: '$colCardId = ?', whereArgs: [card.id]);
       await txn.insert(fts4Table, {
-        'name': card.name,
-        'name_hira': nameData.hiragana,
-        'intro': card.intro,
-        'intro_hira': introData.hiragana,
-        'card_id': card.id,
+        colName: card.name,
+        colNameHira: nameData.hiragana,
+        colIntro: card.intro,
+        colIntroHira: introData.hiragana,
+        colCardId: card.id,
       });
       return affected;
     });
