@@ -1,7 +1,9 @@
 class CardEntity {
   final int? id;
   final String name;
+  final String nameHira;
   final String intro;
+  final String introHira;
   final bool isFave;
   final DateTime createdAt;
   final DateTime updatedAt; //作成時は値が入らないので、null許容
@@ -10,7 +12,9 @@ class CardEntity {
   CardEntity({
     this.id,
     required this.name,
+    required this.nameHira,
     required this.intro,
+    required this.introHira,
     required this.isFave,
     required this.createdAt,
     required this.updatedAt
@@ -21,7 +25,9 @@ class CardEntity {
     return CardEntity(
       id: map['id'] as int?,
       name: map['name'] as String,
+      nameHira: map['name_hira'] as String, 
       intro: map['intro'] as String,
+      introHira: map['intro_hira'] as String,
       isFave: (map['is_fave'] as int) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String)
@@ -32,7 +38,9 @@ class CardEntity {
     return {
       'id': id,
       'name': name,
+      'name_hira': nameHira,
       'intro': intro,
+      'intro_hira': introHira,
       'is_fave': isFave ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
