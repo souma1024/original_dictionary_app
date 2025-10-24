@@ -1,9 +1,10 @@
+import 'package:rxdart/rxdart.dart';
+import 'package:flutter/material.dart';
 import 'package:original_dict_app/dto/card_hit.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
 import 'package:original_dict_app/widgets/search_box.dart';
 import 'package:original_dict_app/utils/db/time_helper.dart';
-import 'package:flutter/material.dart';
 
 class WordListScreen extends StatefulWidget {
   const WordListScreen({super.key});
@@ -13,47 +14,47 @@ class WordListScreen extends StatefulWidget {
 }
 
 class _WordListScreenState extends State<WordListScreen> {
-  // late: 非nullだがinitStateで後から必ず代入する前提
-  late Future<List<CardHit>> _future;
+  // 検索語を流すためのSubject
+  final _query$ = BehaviorSubject<String>.seeded('');
+
+  late final Stream<List<CardHit>> _hits$;
 
   @override
   void initState() {
     super.initState();
-    _future = CardRepository.instance.listForDisplay('');
+
+    _hits$ = _query$
+        .map((q) => q.trim())
+        .distinct()
+        .debounceTime(const Duration(milliseconds: 250))
+        // 最新検索のみ有効。前の重いクエリは破棄される
+        .switchMap((q) => Stream.fromFuture(CardRepository.instance.listForDisplay(q)))
+        .shareReplay(maxSize: 1); // 最新値を保持（再ビルド時に有効）
+  }
+
+  @override
+  void dispose() {
+    _query$.close();
+    super.dispose();
   }
 
   void _onSearchChanged(String value) {
-    final query = value.trim();
-
-    // クエリに応じて Future を準備
-    final future = CardRepository.instance.listForDisplay(query);
-
-    // 状態更新（await の後にまとめて）
-    setState(() {
-      _future = future;
-    });
+    _query$.add(value);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // 🔍 検索バー
-        SearchBox(
-          onChanged: _onSearchChanged, // ← ここを紐づける
-        ),
+        SearchBox(onChanged: _onSearchChanged),
         Expanded(
-          child: FutureBuilder<List<CardHit>>(
-            future: _future,
+          child: StreamBuilder<List<CardHit>>(
+            stream: _hits$,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (snapshot.hasError) {
-                return Center(child: Text('エラー: ${snapshot.error}'));
-              }
-
-              final hits = snapshot.data ?? const [];
+              final hits = snapshot.data!;
               if (hits.isEmpty) {
                 return const Center(child: Text('該当する単語がありません'));
               }
@@ -62,10 +63,12 @@ class _WordListScreenState extends State<WordListScreen> {
                 itemCount: hits.length,
                 itemBuilder: (context, index) {
                   final h = hits[index];
-                  return WordCard(
-                    name: h.card.name,
-                    intro: h.card.intro,
-                    updatedAt: TimeHelper.formatDateTime(h.card.updatedAt),
+                  return RepaintBoundary( // 各カードの再描画を分離
+                    child: WordCard(
+                      name: h.card.name,
+                      intro: h.card.intro,
+                      updatedAt: TimeHelper.formatDateTime(h.card.updatedAt),
+                    ),
                   );
                 },
               );
