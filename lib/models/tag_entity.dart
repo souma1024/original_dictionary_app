@@ -12,7 +12,7 @@ class TagEntity {
     });
 
   factory TagEntity.fromMap(Map<String, dynamic> map ){
-    return CardEntity(
+    return TagEntity(
       id: map['id'] as int?,
       name: map['name'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
