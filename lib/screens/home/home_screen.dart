@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:original_dict_app/screens/home/words_list_screen.dart';
+import 'package:original_dict_app/screens/home/hit_words_list_screen.dart';
 import 'package:original_dict_app/utils/test/insert_sample_data.dart';
-import 'package:original_dict_app/screens/common_scafforld.dart';
+import 'package:original_dict_app/screens/common_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
           children:  [
             SizedBox(height: 16),
             // 検索結果リスト（残りの高さを全部使う）
-            Expanded(child: WordListScreen()),
+            Expanded(child: HitWordsListScreen()),
             ElevatedButton(  //これはテスト用、本番はボタンごと消す。
               onPressed: () async {
                 await insertSampleData();

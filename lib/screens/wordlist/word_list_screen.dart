@@ -3,18 +3,15 @@ import 'package:original_dict_app/models/card_entity.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
 import 'package:original_dict_app/utils/db/time_helper.dart';
-import 'package:original_dict_app/widgets/common_drawer.dart';
+import 'package:original_dict_app/screens/common_scaffold.dart';
 
 class WordListScreen extends StatelessWidget {
   const WordListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('単語一覧'),
-      ),
-      drawer: const CommonDrawer(),
+    return CommonScaffold(  
+      title: '単語一覧',  
       body: FutureBuilder<List<CardEntity>>(
         future: CardRepository.instance.getCards(),
         builder: (context, snapshot) {
@@ -40,10 +37,10 @@ class WordListScreen extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: SizedBox(
-                  height: 110, // ← カードの高さを直接調整
+                  height: 115, // ← カードの高さを直接調整
                   child: WordCard(
                     name: word.name,
-                    intro: word.intro,
+                    limitedIntro: word.intro,
                     updatedAt: TimeHelper.formatDateTime(word.updatedAt),
                   ),
                 ),
