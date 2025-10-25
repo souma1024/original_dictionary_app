@@ -39,7 +39,7 @@ class CardRepository {
 
     final contains = isVeryShort(qNorm);
 
-    if (!contains) {
+    if (contains) {
 
       // 列ごとの式を作る（各列内は AND）
       final nameExpr      = colExpr(colName, toks(qNorm));
@@ -64,7 +64,6 @@ class CardRepository {
         ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
         LIMIT ? OFFSET ?
       ''';
-
       final rows = await db.rawQuery(sql, [matchExpr, limit, offset]);
       return rows.map((r) => CardHit(card: CardPreview.fromMap(r), snippet: null)).toList();
     } else {
