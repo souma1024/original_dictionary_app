@@ -4,7 +4,6 @@ import 'package:original_dict_app/dto/card_hit.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
 import 'package:original_dict_app/widgets/search_box.dart';
-import 'package:original_dict_app/utils/db/time_helper.dart';
 
 class WordListScreen extends StatefulWidget {
   const WordListScreen({super.key});
@@ -50,27 +49,42 @@ class _WordListScreenState extends State<WordListScreen> {
         Expanded(
           child: StreamBuilder<List<CardHit>>(
             stream: _hits$,
+            initialData: const [], // 初回は空表示
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+              if (snapshot.hasError) {
+                return Center(child: Text('読み込みに失敗しました: ${snapshot.error}'));
               }
-              final hits = snapshot.data!;
-              if (hits.isEmpty) {
+              final hits = snapshot.data ?? const [];
+              final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+              if (hits.isEmpty && !isLoading) {
                 return const Center(child: Text('該当する単語がありません'));
               }
 
-              return ListView.builder(
-                itemCount: hits.length,
-                itemBuilder: (context, index) {
-                  final h = hits[index];
-                  return RepaintBoundary( // 各カードの再描画を分離
-                    child: WordCard(
-                      name: h.card.name,
-                      intro: h.card.intro,
-                      updatedAt: TimeHelper.formatDateTime(h.card.updatedAt),
-                    ),
-                  );
-                },
+              return Stack(
+                children: [
+                  ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag, // スクロールでキーボード閉じる
+                    itemExtent: 115,  //カードの高さ
+                    itemCount: hits.length,
+                    itemBuilder: (context, index) {
+                      final h = hits[index];
+                      return RepaintBoundary( // 各カードの再描画を分離
+                        child: WordCard(
+                          key: ValueKey(h.card.id), //キーを持たせることで、単語カードを識別
+                          name: h.card.name,
+                          limitedIntro: h.card.intro,
+                          updatedAt: h.card.updatedAtText,
+                        ),
+                      );
+                    },
+                  ),
+                  if (isLoading)
+                  const Align(
+                    alignment: Alignment.topCenter,
+                    child: LinearProgressIndicator(minHeight: 2),
+                  ),
+                ],
               );
             },
           ),

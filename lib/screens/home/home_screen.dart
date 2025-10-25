@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
       // 時刻などが書いてある画面最上部にはUIを設置しないようにするなど
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           child: Column(
             children:  [
               SizedBox(height: 16),
