@@ -1,4 +1,4 @@
-bool isVeryShort(String hira) => hira.runes.length < 4;
+bool isVeryShort(String hira) => hira.runes.length < 2;
 
 Iterable<String> toks(String s) =>
     s.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
@@ -22,14 +22,17 @@ String escapeFtsToken(String token, {int maxLen = 32}) {
 
   // 長すぎるトークンは切り詰め（負荷対策）
   if (t.length > maxLen) t = t.substring(0, maxLen);
-
   if (t.isEmpty) return '';
 
-  // 語句クォート中の " は "" に
-  t = t.replaceAll('"', '""');
+   // クォートが必要？（今回はシンプルに、英数・ひらがな・カタカナ・漢字のみなら不要とみなす）
+  final needsQuotes = RegExp(r'[^0-9A-Za-z\u3040-\u30FF\u4E00-\u9FFF]').hasMatch(t);
 
-  // 語句クォート + プレフィックス検索
-  return '"$t"*';
+  if (needsQuotes) {
+    t = t.replaceAll('"', '""');       // クォート内の " をエスケープ
+    return '"$t*"';                    // ★ クォートの“中”に *
+  } else {
+    return '$t*';                      // ★ クォートなしで *
+  }
 }
 
 String escapeLike(String s) {
