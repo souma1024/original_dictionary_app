@@ -8,15 +8,25 @@ class CommonDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
-        children: const [
+        children:  [
           DrawerHeader(child: Text('Drawer Header')),
           ListTile(
             leading: Icon(Icons.home),
             title: Text('ホーム'),
-          ),
+            onTap: () {
+              Navigator.pop(context); // Drawerを閉じる
+              Future.delayed(const Duration(milliseconds: 250), () {
+                Navigator.pushReplacementNamed(context, '/'); // ルート名でHomeに遷移
+              });
+              },
+              ),
           ListTile(
             leading: Icon(Icons.book),
             title: Text('単語一覧'),
+            onTap: () {
+              Navigator.pop(context);  // Drawerを閉じる
+              Navigator.pushReplacementNamed(context, '/words');  // ルート名で遷移
+            },
           ),
           ListTile(
             leading: Icon(Icons.tag),
