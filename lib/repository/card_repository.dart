@@ -4,7 +4,6 @@ import '../models/card_entity.dart';
 class CardRepository {
   CardRepository._();
   static final CardRepository instance = CardRepository._();
-
   static const String table = 'cards';
   static const String colId = 'id';
   static const String colName = 'name';

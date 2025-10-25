@@ -65,9 +65,9 @@ class AppDatabase {
         await db.execute('''
           CREATE TABLE tags (
             id INTEGER PRIMARY KEY,
-            name VARCHAR NOT NULL UNIQUE,
-            created_at TEXT,
-            updated_at TEXT
+            name TEXT NOT NULL UNIQUE,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
           );
         ''');
 
