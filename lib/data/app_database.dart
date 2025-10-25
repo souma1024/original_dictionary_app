@@ -54,7 +54,9 @@ class AppDatabase {
           CREATE TABLE cards (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
+            name_hira TEXT NOT NULL,
             intro TEXT NOT NULL DEFAULT '',
+            intro_hira TEXT NOT NULL DEFAULT '',
             is_fave INTEGER NOT NULL DEFAULT 0 CHECK (is_fave IN (0,1)),
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -84,9 +86,17 @@ class AppDatabase {
           );
         ''');
 
-        // 参照先に合わせたインデックス
-        // await db.execute('CREATE INDEX idx_card_tags_card_id ON card_tags(card_id);');
-        // await db.execute('CREATE INDEX idx_card_tags_tag_id  ON card_tags(tag_id);');
+        // 検索用に作った仮想テーブル
+        await db.execute('''
+          CREATE VIRTUAL TABLE cards_fts USING fts4(
+            name,            
+            name_hira,       
+            intro,           
+            intro_hira,      
+            card_id UNINDEXED,
+            tokenize='unicode61'
+          );
+        ''');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         // 例:
