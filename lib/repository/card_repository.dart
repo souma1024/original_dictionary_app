@@ -21,17 +21,18 @@ class CardRepository {
   static const String colCreatedAt = 'created_at';
   static const String colUpdatedAt = 'updated_at';
   static const String colCardId = 'card_id';
+  static const int displaylimitCards = 7;
 
   /// 検索 or 全件をまとめて取得（UI向け統一口）
   Future<List<CardHit>> listForDisplay(
-    String query, {int limit = 15, int offset = 0}) {
+    String query, {int limit = displaylimitCards, int offset = 0}) {
     final q = query.trim();
     return q.isEmpty ? getCardsAsHits(limit: limit, offset: offset) : searchCards(q, limit: limit, offset: offset);
   }
 
   Future<List<CardHit>> searchCards(
     String rawQuery, {
-    int limit = 15,
+    int limit = displaylimitCards,
     int offset = 0, // offsetは、それまでの行をスキップする（offset=10なら11行目から読み込まれる）
   }) async {
     final db = await AppDatabase.instance.database;
@@ -96,7 +97,7 @@ class CardRepository {
 
   // カードを生成するディスプレイ用
   Future<List<CardHit>> getCardsAsHits({
-    int limit = 15,
+    int limit = displaylimitCards,
     int offset = 0,
   }) async {
     final db = await AppDatabase.instance.database;

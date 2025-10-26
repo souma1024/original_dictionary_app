@@ -6,17 +6,31 @@ class CommonDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final current = ModalRoute.of(context)?.settings.name;
+
+    void go(String routeName) {
+      // 既に同じ画面なら閉じるだけ
+      if (current == routeName) {
+        Navigator.pop(context);
+        return;
+      }
+      Navigator.pop(context); // 先に Drawer を閉じる
+      Navigator.pushReplacementNamed(context, routeName);
+    }
+
     return Drawer(
       child: ListView(
-        children: const [
+        children: [
           DrawerHeader(child: Text('Drawer Header')),
           ListTile(
             leading: Icon(Icons.home),
             title: Text('ホーム'),
+            onTap: () => go('/home')
           ),
           ListTile(
             leading: Icon(Icons.book),
             title: Text('単語一覧'),
+            onTap: () => go('/words')
           ),
           ListTile(
             leading: Icon(Icons.tag),
@@ -25,6 +39,7 @@ class CommonDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.question_answer),
             title: Text('クイズ'),
+            onTap: () => go('/quiz')
           ),
           ListTile(
             leading: Icon(Icons.settings),

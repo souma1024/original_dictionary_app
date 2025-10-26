@@ -5,14 +5,14 @@ import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
 import 'package:original_dict_app/widgets/search_box.dart';
 
-class WordListScreen extends StatefulWidget {
-  const WordListScreen({super.key});
+class HitWordsListScreen extends StatefulWidget {
+  const HitWordsListScreen({super.key});
 
   @override
-  State<WordListScreen> createState() => _WordListScreenState();
+  State<HitWordsListScreen> createState() => _WordListScreenState();
 }
 
-class _WordListScreenState extends State<WordListScreen> {
+class _WordListScreenState extends State<HitWordsListScreen> {
   // 検索語を流すためのSubject
   final _query$ = BehaviorSubject<String>.seeded('');
 

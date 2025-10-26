@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/home_screen.dart';
+import 'package:original_dict_app/screens/quiz/quiz_screen.dart';
+import 'package:original_dict_app/screens/wordlist/word_list_screen.dart';
 // import 'package:original_dict_app/data/app_database.dart';
 
 
@@ -25,10 +27,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),  // ← これで確実に初期画面が出る
-      // routes: {
-      //   '/': (_) => const HomeScreen(),画面が増えたらここを書き換える。
-      // },
+      initialRoute: '/home',
+      routes: {
+        '/home': (_) => const HomeScreen(),
+        '/quiz': (_) => const QuizScreen(),
+        '/words': (_) => const WordListScreen()
+      },
     );
   }
 }
