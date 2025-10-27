@@ -1,3 +1,4 @@
+import 'package:sqflite/sqflite.dart';
 import '../data/app_database.dart';
 import '../models/card_entity.dart';
 
@@ -17,7 +18,7 @@ class CardRepository {
   CardEntity fromRow(Map<String, Object?> row) {
     final m = Map<String, dynamic>.from(row);
 
-    // is_fave を 0/1 に正規化（bool / "true"/"1" も許容）
+    // is_fave を 0/1 に正規化
     final fav = m[colIsFave];
     if (fav is bool) {
       m[colIsFave] = fav ? 1 : 0;
@@ -25,37 +26,58 @@ class CardRepository {
       m[colIsFave] = (fav == '1' || fav.toLowerCase() == 'true') ? 1 : 0;
     }
 
-    // created_at / updated_at が int(UNIX ms) なら ISO8601 へ
+    // created_at / updated_at を ISO8601 形式に統一
     String toIso(dynamic v, {bool required = false}) {
       if (v == null) {
-        if (required) {
-          // created_at はモデル側で required なので最低限のフォールバック
-          return DateTime.now().toIso8601String();
-        }
         return DateTime.now().toIso8601String();
       }
-      if (v is int) return DateTime.fromMillisecondsSinceEpoch(v).toIso8601String();
-      if (v is String) return v; // すでに ISO とみなす
+      if (v is int) {
+        return DateTime.fromMillisecondsSinceEpoch(v).toIso8601String();
+      }
+      if (v is String) return v;
       return DateTime.now().toIso8601String();
     }
 
-    m[colCreatedAt] = toIso(m[colCreatedAt], required: true);
-    if (m[colUpdatedAt] != null) {
-      m[colUpdatedAt] = (m[colUpdatedAt] is int)
-          ? DateTime.fromMillisecondsSinceEpoch(m[colUpdatedAt] as int).toIso8601String()
-          : m[colUpdatedAt];
-    }
+    m[colCreatedAt] = toIso(m[colCreatedAt]);
+    m[colUpdatedAt] = toIso(m[colUpdatedAt]);
 
     return CardEntity.fromMap(m);
   }
 
+  // 全取得
   Future<List<CardEntity>> getCards() async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(table);
-    // ← 必ず fromRow を通して型を整える
     return rows.map((r) => fromRow(r)).toList();
   }
 
+  // ✅ 追加：ページング対応版カード取得
+  Future<List<CardEntity>> getCardsByPage({
+    required int page,
+    required int limit,
+  }) async {
+    final db = await AppDatabase.instance.database;
+    final offset = (page - 1) * limit;
+
+    final rows = await db.query(
+      table,
+      orderBy: '$colId ASC', // ← 並び順を固定！これが重要
+      limit: limit,
+      offset: offset,
+    );
+
+    return rows.map((row) => fromRow(row)).toList();
+  }
+
+
+  // ✅ 追加：総件数を取得（最大ページ数の計算に使う）
+  Future<int> getCardCount() async {
+    final db = await AppDatabase.instance.database;
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM $table');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  // ID検索
   Future<CardEntity?> getCardById(int id) async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(
@@ -65,20 +87,16 @@ class CardRepository {
       limit: 1,
     );
     if (rows.isEmpty) return null;
-    // ← List なので first を渡す
     return fromRow(rows.first);
   }
 
-  /// 戻り値: 追加されたレコードの rowId
+  // 追加
   Future<int> insertCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
-    return db.insert(
-      table,
-      card.toMap(),
-    );
+    return db.insert(table, card.toMap());
   }
 
-  /// 戻り値: 影響行数（0 or 1）
+  // 削除
   Future<int> deleteCard(int id) async {
     final db = await AppDatabase.instance.database;
     return db.delete(
@@ -88,12 +106,11 @@ class CardRepository {
     );
   }
 
-  /// 戻り値: 影響行数（0 or 1）
+  // 更新（更新日時を自動更新）
   Future<int> updateCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
     final map = card.toMap();
-    map[colUpdatedAt] = DateTime.now().toIso8601String(); // ← 自動更新
-
+    map[colUpdatedAt] = DateTime.now().toIso8601String();
     return db.update(
       table,
       map,
