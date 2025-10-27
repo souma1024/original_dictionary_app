@@ -1,4 +1,4 @@
-# original_dict_app
+# original_dictionary_app
 オリジナル辞書アプリ
 
 [企画書](./docs/e-team_kikaku_up.pdf)
@@ -142,7 +142,7 @@ original_dictionary_app> fvm flutter run
 ```
 ### 3.コードを記述していきIssueの機能を完成させる。細かい機能を完成させたらコミットすると良い！
 ```
-  git add .                          
+  git add (ファイル名)                         
   git commit -m "(コメントを書く)"
 ```
 ### 4.完成したら、以下のコマンドを行いリモートリポジトリにローカルリポジトリをpush
@@ -190,6 +190,8 @@ lib/
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro) <br>
 [Flutter公式サイト](https://flutter.ctrnost.com/) <br>
 [Flutter公式アイコン](https://api.flutter.dev/flutter/material/Icons-class.html)
+
+
 
 
 

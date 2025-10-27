@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:original_dict_app/models/card_entity.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
-import 'package:original_dict_app/utils/db/time_helper.dart';
 import 'package:original_dict_app/widgets/common_drawer.dart';
+import 'package:original_dict_app/dto/card_hit.dart';
 
 class WordListScreen extends StatefulWidget {
   const WordListScreen({super.key});
@@ -23,10 +22,11 @@ class _WordListScreenState extends State<WordListScreen> {
     _totalCardsFuture = CardRepository.instance.getCardCount();
   }
 
-  Future<List<CardEntity>> _loadCards() {
-    return CardRepository.instance.getCardsByPage(
+  Future<List<CardHit>> _loadCards() {
+    return CardRepository.instance.getCardsAsHits(
       page: _currentPage,
       limit: _limit,
+      offset: 0,
     );
   }
 
@@ -50,7 +50,7 @@ class _WordListScreenState extends State<WordListScreen> {
           return Column(
             children: [
               Expanded(
-                child: FutureBuilder<List<CardEntity>>(
+                child: FutureBuilder<List<CardHit>>(
                   future: _loadCards(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -75,9 +75,11 @@ class _WordListScreenState extends State<WordListScreen> {
                           child: SizedBox(
                             height: 110,
                             child: WordCard(
-                              name: word.name,
-                              intro: word.intro,
-                              updatedAt: TimeHelper.formatDateTime(word.updatedAt),
+                              id: word.card.id,
+                              name: word.card.name,
+                              limitedIntro: word.card.intro,
+                              isFave: word.card.isFave,
+                              updatedAt: word.card.updatedAtText,
                             ),
                           ),
                         );
