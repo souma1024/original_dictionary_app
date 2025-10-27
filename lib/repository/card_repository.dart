@@ -58,6 +58,7 @@ class CardRepository {
           m.$colId,
           m.$colName,
           m.$colIntro,
+          m.$colIsFave,
           m.$colUpdatedAt
         FROM $fts4Table
         JOIN $table AS m ON m.$colId = $fts4Table.$colCardId
@@ -75,6 +76,7 @@ class CardRepository {
             m.$colId,
             m.$colName, 
             m.$colIntro,
+            m.$colIsFave,
             m.$colUpdatedAt
           FROM $table AS m
           WHERE
@@ -103,7 +105,7 @@ class CardRepository {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(
       table, // $table
-      columns: [colId, colName, colIntro, colUpdatedAt], // 必要列だけ
+      columns: [colId, colName, colIntro, colIsFave, colUpdatedAt], // 必要列だけ
       orderBy: 'datetime($colUpdatedAt) DESC, $colId DESC',
       limit: limit,
       offset: offset,
@@ -196,6 +198,41 @@ class CardRepository {
       final count = await txn.delete(table, where: '$colId = ?', whereArgs: [id]);
       return count;
     });
+  }
+
+  // 複数削除
+  Future<int> deleteCards(List<int> ids) async {
+    if (ids.isEmpty) return 0;
+
+    // SQLite のバインド数上限（既定 999）を考慮して分割
+    const maxVars = 900; // 余裕を持たせる
+    final db = await AppDatabase.instance.database;
+
+    int totalMainDeleted = 0;
+
+    await db.transaction((txn) async {
+      for (var i = 0; i < ids.length; i += maxVars) {
+        final chunk = ids.sublist(i, (i + maxVars).clamp(0, ids.length));
+        final placeholders = List.filled(chunk.length, '?').join(',');
+
+        // 1) まず関連するFTS行を削除（FKやトリガがない前提）
+        await txn.delete(
+          fts4Table,
+          where: '$colCardId IN ($placeholders)',
+          whereArgs: chunk,
+        );
+
+        // 2) 本体テーブルを削除
+        final mainDeleted = await txn.delete(
+          table,
+          where: '$colId IN ($placeholders)',
+          whereArgs: chunk,
+        );
+
+        totalMainDeleted += mainDeleted;
+      }
+    });
+    return totalMainDeleted; // ← 本体テーブルで削除できた件数を返す
   }
 
   /// 戻り値: 影響行数（0 or 1）

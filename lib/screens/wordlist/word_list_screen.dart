@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:original_dict_app/models/card_entity.dart';
+import 'package:original_dict_app/dto/card_hit.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
-import 'package:original_dict_app/utils/db/time_helper.dart';
 import 'package:original_dict_app/screens/common_scaffold.dart';
 
 class WordListScreen extends StatelessWidget {
@@ -12,8 +11,8 @@ class WordListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return CommonScaffold(  
       title: '単語一覧',  
-      body: FutureBuilder<List<CardEntity>>(
-        future: CardRepository.instance.getCards(),
+      body: FutureBuilder<List<CardHit>>(
+        future: CardRepository.instance.listForDisplay(""),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -39,9 +38,11 @@ class WordListScreen extends StatelessWidget {
                 child: SizedBox(
                   height: 115, // ← カードの高さを直接調整
                   child: WordCard(
-                    name: word.name,
-                    limitedIntro: word.intro,
-                    updatedAt: TimeHelper.formatDateTime(word.updatedAt),
+                    id: word.card.id,
+                    name: word.card.name,
+                    limitedIntro: word.card.intro,
+                    isFave: word.card.isFave,
+                    updatedAt: word.card.updatedAtText,
                   ),
                 ),
               );
