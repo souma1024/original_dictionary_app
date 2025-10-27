@@ -34,7 +34,7 @@ class CommonDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.tag),
-            title: Text('タグ一覧'),
+            title: Text('タグ管理'),
           ),
           ListTile(
             leading: Icon(Icons.question_answer),
