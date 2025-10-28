@@ -32,17 +32,17 @@ class _WordListScreenState extends State<HitWordsListScreen> {
           .map((q) => q.trim())
           .debounceTime(const Duration(milliseconds: 300)),
       _reload$.startWith(null),                 // ← 起動時も一度発火させる
-      (q, _) => q,                              // ← いつでも最新の検索語で再検索
+          (q, _) => q,                              // ← いつでも最新の検索語で再検索
     )
     // switchMapはDBからデータを取得し表示させている最中にインプットデータが変わった時、古いインプットデータでの処理結果表示をキャンセルする。
-    .switchMap((q) => Stream.fromFuture(CardRepository.instance.listForDisplay(q)))
-    .doOnData((hits) {
+        .switchMap((q) => Stream.fromFuture(CardRepository.instance.listForDisplay(q)))
+        .doOnData((hits) {
       if (_selection.selectionMode) {
         final visible = hits.map((h) => h.card.id).toSet();
         _selection.pruneNotVisible(visible);
       }
     })
-    .shareReplay(maxSize: 1);  //直近1回の検索結果をキャッシュする
+        .shareReplay(maxSize: 1);  //直近1回の検索結果をキャッシュする
   }
 
   @override
@@ -69,7 +69,7 @@ class _WordListScreenState extends State<HitWordsListScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('キャンセル')),
           FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('削除')),  //TextButton＝補助操作、FilledButton＝主要操作の強調ボタン
-        ], 
+        ],
       ),
     );
 
@@ -79,7 +79,7 @@ class _WordListScreenState extends State<HitWordsListScreen> {
       // 選択解除
       _selection.exit();
       // ★ 同じクエリで再検索してUI更新
-      _reload$.add(null); 
+      _reload$.add(null);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('削除しました')),
@@ -94,7 +94,7 @@ class _WordListScreenState extends State<HitWordsListScreen> {
       child: Column(
         children: [
           AnimatedBuilder(       // ★ 選択状態の変化で再ビルド
-            animation: _selection,  
+            animation: _selection,
             builder: (context, _) { //(_)は、引数は受けるが使わないよ！というサイン
               final inSelect = _selection.selectionMode;
               final count = _selection.count;
@@ -103,21 +103,21 @@ class _WordListScreenState extends State<HitWordsListScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: inSelect
                     ? Row(
-                        children: [
-                          Text('$count 件選択中', style: Theme.of(context).textTheme.titleMedium),
-                          const Spacer(), // 下のIconButtonらと上のTextを空きスペースを自動で広げるウィジェット
-                          IconButton(
-                            tooltip: '選択解除',
-                            icon: const Icon(Icons.close),
-                            onPressed: _selection.exit,
-                          ),
-                          IconButton(
-                            tooltip: 'カードを削除',
-                            icon: const Icon(Icons.delete),
-                            onPressed: _deleteSelected,
-                          ),
-                        ],
-                      )
+                  children: [
+                    Text('$count 件選択中', style: Theme.of(context).textTheme.titleMedium),
+                    const Spacer(), // 下のIconButtonらと上のTextを空きスペースを自動で広げるウィジェット
+                    IconButton(
+                      tooltip: '選択解除',
+                      icon: const Icon(Icons.close),
+                      onPressed: _selection.exit,
+                    ),
+                    IconButton(
+                      tooltip: 'カードを削除',
+                      icon: const Icon(Icons.delete),
+                      onPressed: _deleteSelected,
+                    ),
+                  ],
+                )
                     : SearchBox(onChanged: _onSearchChanged),
               );
             },

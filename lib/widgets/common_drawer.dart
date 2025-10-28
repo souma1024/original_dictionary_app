@@ -15,7 +15,7 @@ class CommonDrawer extends StatelessWidget {
         return;
       }
       Navigator.pop(context); // 先に Drawer を閉じる
-      Navigator.pushReplacementNamed(context, routeName);
+      Navigator.pushNamed(context, routeName);
     }
 
     return Drawer(
@@ -23,23 +23,23 @@ class CommonDrawer extends StatelessWidget {
         children: [
           DrawerHeader(child: Text('Drawer Header')),
           ListTile(
-            leading: Icon(Icons.home),
-            title: Text('ホーム'),
-            onTap: () => go('/home')
+              leading: Icon(Icons.home),
+              title: Text('ホーム'),
+              onTap: () => go('/home')
           ),
           ListTile(
-            leading: Icon(Icons.book),
-            title: Text('単語一覧'),
-            onTap: () => go('/words')
+              leading: Icon(Icons.book),
+              title: Text('単語一覧'),
+              onTap: () => go('/words')
           ),
           ListTile(
             leading: Icon(Icons.tag),
             title: Text('タグ管理'),
           ),
           ListTile(
-            leading: Icon(Icons.question_answer),
-            title: Text('クイズ'),
-            onTap: () => go('/quiz')
+              leading: Icon(Icons.question_answer),
+              title: Text('クイズ'),
+              onTap: () => go('/quiz')
           ),
           ListTile(
             leading: Icon(Icons.settings),

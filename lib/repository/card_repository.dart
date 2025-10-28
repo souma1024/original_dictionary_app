@@ -5,6 +5,7 @@ import 'package:original_dict_app/dto/card_hit.dart'  ;
 import 'package:original_dict_app/utils/security/input_sanitizer.dart';
 import 'package:original_dict_app/data/mapper/card_mapper.dart';
 import 'package:jp_transliterate/jp_transliterate.dart';
+import 'package:sqflite/sqflite.dart';
 
 class CardRepository {
   CardRepository._();
@@ -25,16 +26,16 @@ class CardRepository {
 
   /// 検索 or 全件をまとめて取得（UI向け統一口）
   Future<List<CardHit>> listForDisplay(
-    String query, {int limit = displaylimitCards, int offset = 0}) {
+      String query, {int limit = displaylimitCards, int offset = 0}) {
     final q = query.trim();
     return q.isEmpty ? getCardsAsHits(limit: limit, offset: offset) : searchCards(q, limit: limit, offset: offset);
   }
 
   Future<List<CardHit>> searchCards(
-    String rawQuery, {
-    int limit = displaylimitCards,
-    int offset = 0, // offsetは、それまでの行をスキップする（offset=10なら11行目から読み込まれる）
-  }) async {
+      String rawQuery, {
+        int limit = displaylimitCards,
+        int offset = 0, // offsetは、それまでの行をスキップする（offset=10なら11行目から読み込まれる）
+      }) async {
     final db = await AppDatabase.instance.database;
     final qNorm = rawQuery;
 
@@ -69,9 +70,9 @@ class CardRepository {
       final rows = await db.rawQuery(sql, [matchExpr, limit, offset]);
       return rows.map((r) => CardHit(card: CardPreview.fromMap(r), snippet: null)).toList();
     } else {
-        final normTokens = toks(qNorm).map((t) => '%${escapeLike(t)}%').toList();
+      final normTokens = toks(qNorm).map((t) => '%${escapeLike(t)}%').toList();
 
-        final sql = '''
+      final sql = '''
           SELECT 
             m.$colId,
             m.$colName, 
@@ -90,15 +91,16 @@ class CardRepository {
           ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
           LIMIT ? OFFSET ?
         ''';
-        final args = [...normTokens, ...normTokens, ...normTokens, ...normTokens, limit, offset];
-        final rows = await db.rawQuery(sql, args);
-        // 自前ハイライト（簡易）
-        return rows.map((r) => CardHit(card: CardPreview.fromMap(r), snippet: null)).toList();
+      final args = [...normTokens, ...normTokens, ...normTokens, ...normTokens, limit, offset];
+      final rows = await db.rawQuery(sql, args);
+      // 自前ハイライト（簡易）
+      return rows.map((r) => CardHit(card: CardPreview.fromMap(r), snippet: null)).toList();
     }
   }
 
   // カードを生成するディスプレイ用
   Future<List<CardHit>> getCardsAsHits({
+    int page = 0,
     int limit = displaylimitCards,
     int offset = 0,
   }) async {
@@ -112,9 +114,9 @@ class CardRepository {
     );
     return rows
         .map((m) => CardHit(
-              card: CardPreview.fromMap(m), // 直接Map→CardPreview
-              snippet: null,
-            ))
+      card: CardPreview.fromMap(m), // 直接Map→CardPreview
+      snippet: null,
+    ))
         .toList();
   }
 
@@ -139,7 +141,15 @@ class CardRepository {
       LIMIT ? OFFSET ?
     ''';
     final rows = await db.rawQuery(sql, [limit, offset]);
-    return rows.map((r) => CardMapper.toEntity(r)).toList(); 
+    return rows.map((r) => CardMapper.toEntity(r)).toList();
+  }
+
+  // レコード総数を返す
+  Future<int> getCardCount() async {
+    final db = await AppDatabase.instance.database;
+    final result = await db.rawQuery(' SELECT COUNT(*) FROM $table ');
+    final count = Sqflite.firstIntValue(result) ?? 0;
+    return count;
   }
 
   Future<CardEntity?> getCardById(int id) async {
@@ -159,7 +169,7 @@ class CardRepository {
   Future<int> insertCard(CardEntity card) async {
     final db = await AppDatabase.instance.database;
     return await db.transaction((txn) async {
-       // ひらがな化（並列）
+      // ひらがな化（並列）
       final results = await Future.wait([
         JpTransliterate.transliterate(kanji: card.name),
         JpTransliterate.transliterate(kanji: card.intro),
