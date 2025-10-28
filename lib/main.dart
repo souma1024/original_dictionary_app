@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/home_screen.dart';
 import 'package:original_dict_app/screens/quiz/quiz_screen.dart';
 import 'package:original_dict_app/screens/wordlist/word_list_screen.dart';
-// import 'package:original_dict_app/data/app_database.dart';
+import 'package:original_dict_app/data/app_database.dart';
+import 'package:original_dict_app/controller/word_selection_scope.dart';
+import 'package:original_dict_app/controller/word_collection_controller.dart' as collect;
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // ← これ必須
+  await AppDatabase.instance.database;      // ← DB初期化を待つ
 
-void main() {
-  // WidgetsFlutterBinding.ensureInitialized(); テーブル設計を変更したときのみ有効にする
-  // await AppDatabase.instance.resetForDev();
-  runApp(const MyApp());
+  runApp(
+    WordSelectionScope<int>(            // ★ <int> を忘れずに！
+      controller: collect.WordSelectionController<int>(), // ★ ここも<int>
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,12 +24,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // 画面右上に表示されるリボン型でDEBUGと書いてあるものを非表示にする
       debugShowCheckedModeBanner: false,
       title: 'オリジナル辞書アプリ',
-
-      // fromSeedでseedColorを基調にした統一感あるデザインが自動で作れる
-      // useMaterial3:trueで、デザインをMaterial design3という最新バージョンにする
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
         useMaterial3: true,
@@ -31,7 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (_) => const HomeScreen(),
         '/quiz': (_) => const QuizScreen(),
-        '/words': (_) => const WordListScreen()
+        '/words': (_) => const WordListScreen(),
       },
     );
   }
