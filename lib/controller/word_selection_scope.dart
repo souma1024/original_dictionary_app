@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:original_dict_app/controller/word_collection_controller.dart';
+import 'package:original_dict_app/controller/word_selection_controller.dart';
 
 class WordSelectionScope<T> extends InheritedNotifier<WordSelectionController<T>> {
 
