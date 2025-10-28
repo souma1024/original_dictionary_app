@@ -5,7 +5,10 @@ import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/widgets/word_card.dart';
 import 'package:original_dict_app/widgets/search_box.dart';
 import 'package:original_dict_app/controller/word_selection_scope.dart';
-import 'package:original_dict_app/controller/word_collection_controller.dart';
+import 'package:original_dict_app/controller/word_selection_controller.dart';
+import 'package:original_dict_app/utils/delete_cards_utils.dart';
+import 'package:original_dict_app/widgets/confirm_delete_cards_dialog.dart';
+import 'package:original_dict_app/widgets/selection_toolbar.dart';
 
 class HitWordsListScreen extends StatefulWidget {
   const HitWordsListScreen({super.key});
@@ -20,29 +23,36 @@ class _WordListScreenState extends State<HitWordsListScreen> {
 
   late final Stream<List<CardHit>> _hits$;
   late final WordSelectionController<int> _selection;
+  late final DeleteCardsUtils _deleteCards;
   final _reload$ = PublishSubject<Object?>();
 
   @override
   void initState() {
     super.initState();
     _selection = WordSelectionController<int>();
+    final repo = CardRepository.instance;
+    _deleteCards = DeleteCardsUtils(
+      repo: repo,
+      selection: _selection,
+      onReload: () => _reload$.add(null),
+    );
 
     _hits$ = Rx.combineLatest2<String, Object?, String>(
       _query$
-          .map((q) => q.trim())
-          .debounceTime(const Duration(milliseconds: 300)),
-      _reload$.startWith(null),                 // ← 起動時も一度発火させる
-          (q, _) => q,                              // ← いつでも最新の検索語で再検索
+        .map((q) => q.trim())
+        .debounceTime(const Duration(milliseconds: 300)),
+        _reload$.startWith(null),                 // ← 起動時も一度発火させる
+        (q, _) => q,                              // ← いつでも最新の検索語で再検索
     )
     // switchMapはDBからデータを取得し表示させている最中にインプットデータが変わった時、古いインプットデータでの処理結果表示をキャンセルする。
-        .switchMap((q) => Stream.fromFuture(CardRepository.instance.listForDisplay(q)))
-        .doOnData((hits) {
+    .switchMap((q) => Stream.fromFuture(repo.listForDisplay(q)))
+    .doOnData((hits) {
       if (_selection.selectionMode) {
         final visible = hits.map((h) => h.card.id).toSet();
         _selection.pruneNotVisible(visible);
       }
     })
-        .shareReplay(maxSize: 1);  //直近1回の検索結果をキャッシュする
+    .shareReplay(maxSize: 1);  //直近1回の検索結果をキャッシュする
   }
 
   @override
@@ -57,34 +67,25 @@ class _WordListScreenState extends State<HitWordsListScreen> {
     _query$.add(value);
   }
 
-  Future<void> _deleteSelected() async {
-    final ids = _selection.selectedIds.toList();
-    if (ids.isEmpty) return;
+  Future<void> _handleDeletePressed() async {
+    try {
+      final ids = _selection.selectedIds.toList();
+      if (ids.isEmpty) return;
+      final ok = await confirmDeleteCardsDialog(context, ids.length);
+      if (ok != true) return;
 
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('選択した単語を削除しますか？'),
-        content: Text('合計 ${ids.length} 件を削除します。取り消せません。'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('キャンセル')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('削除')),  //TextButton＝補助操作、FilledButton＝主要操作の強調ボタン
-        ],
-      ),
-    );
-
-    if (ok == true) {
-      // データを削除
-      await CardRepository.instance.deleteCards(ids);
-      // 選択解除
-      _selection.exit();
-      // ★ 同じクエリで再検索してUI更新
-      _reload$.add(null);
+      await _deleteCards(ids);   // call演算子でOK
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('削除しました')),
       );
-    }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('削除に失敗しました: $e')),
+        );
+      }
+    } 
   }
 
   @override
@@ -93,31 +94,13 @@ class _WordListScreenState extends State<HitWordsListScreen> {
       controller: _selection,
       child: Column(
         children: [
-          AnimatedBuilder(       // ★ 選択状態の変化で再ビルド
-            animation: _selection,
-            builder: (context, _) { //(_)は、引数は受けるが使わないよ！というサイン
-              final inSelect = _selection.selectionMode;
-              final count = _selection.count;
-
+          ValueListenableBuilder<bool>(       // ★ 選択状態の変化で再ビルド
+            valueListenable: _selection.selectionModeListenable,
+            builder: (context, inSelect, _) { //(_)は、引数は受けるが使わないよ！というサイン
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: inSelect
-                    ? Row(
-                  children: [
-                    Text('$count 件選択中', style: Theme.of(context).textTheme.titleMedium),
-                    const Spacer(), // 下のIconButtonらと上のTextを空きスペースを自動で広げるウィジェット
-                    IconButton(
-                      tooltip: '選択解除',
-                      icon: const Icon(Icons.close),
-                      onPressed: _selection.exit,
-                    ),
-                    IconButton(
-                      tooltip: 'カードを削除',
-                      icon: const Icon(Icons.delete),
-                      onPressed: _deleteSelected,
-                    ),
-                  ],
-                )
+                    ? SelectionToolbar(selection: _selection, onDeletePressed: _handleDeletePressed, onExitPressed: _selection.exit)
                     : SearchBox(onChanged: _onSearchChanged),
               );
             },
