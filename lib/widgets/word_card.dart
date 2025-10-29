@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:original_dict_app/utils/db/text_length_helper.dart';
 
 class WordCard extends StatelessWidget {
 
   final String name;
-  final String intro;
+  final String limitedIntro;
   final String updatedAt;
 
   const WordCard({
     super.key,
     required this.name,
-    required this.intro,
+    required this.limitedIntro,
     required this.updatedAt,
   });
+
+  static const _dateStyle = TextStyle(fontSize: 12, color: Colors.grey);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class WordCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        elevation: 4,
+        elevation: 1,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -44,12 +45,11 @@ class WordCard extends StatelessWidget {
                   // Icon(Icons.star, size: 16),
                 ],
               ),
-              const SizedBox(height: 4),
-
+              const SizedBox(height: 6),
               // 2行目（イントロ＝本文）
               Expanded(
                 child: Text(
-                  TextLengthHelper.limitTextLength(intro),
+                  limitedIntro,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -58,10 +58,7 @@ class WordCard extends StatelessWidget {
               // 右下に日付
               Align(
                 alignment: Alignment.bottomRight,
-                child: Text(
-                  updatedAt,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
+                child: Text(updatedAt, style: _dateStyle),
               ),
             ],
           ),

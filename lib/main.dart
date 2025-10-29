@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/home_screen.dart';
-// import 'package:original_dict_app/data/app_database.dart';
+import 'package:original_dict_app/data/app_database.dart';
 
 
-void main() async {
-  // WidgetsFlutterBinding.ensureInitialized(); テーブル設計を変更したときのみ有効にする
-  // await AppDatabase.instance.resetForDev();
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized(); //テーブル設計を変更したときのみ有効にする
+  await AppDatabase.instance.resetForDev();
   runApp(const MyApp());
 }
 

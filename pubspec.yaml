@@ -37,6 +37,8 @@ dependencies:
   sqflite: ^2.4.2
   path: ^1.9.1
   intl: ^0.20.2
+  jp_transliterate: 1.0.5 # 漢字からひらがなに直すサードパーティパッケージ
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:
