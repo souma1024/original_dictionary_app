@@ -1,4 +1,4 @@
-# original_dict_app
+# original_dictionary_app
 オリジナル辞書アプリ
 
 [企画書](./docs/e-team_kikaku_up.pdf)
@@ -190,6 +190,7 @@ lib/
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro) <br>
 [Flutter公式サイト](https://flutter.ctrnost.com/) <br>
 [Flutter公式アイコン](https://api.flutter.dev/flutter/material/Icons-class.html)
+
 
 
 
