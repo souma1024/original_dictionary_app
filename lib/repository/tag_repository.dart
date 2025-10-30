@@ -1,5 +1,6 @@
-import '../data/app_database.dart';
-import '../models/tag_entity.dart';
+import 'package:original_dict_app/data/app_database.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
+import 'package:original_dict_app/utils/db/time_helper.dart';
 
 class TagRepository {
   TagRepository._();
@@ -13,19 +14,7 @@ class TagRepository {
   TagEntity fromRow(Map<String, Object?> row) {
     final m = Map<String, dynamic>.from(row);
 
-    String toIso(dynamic v, {bool required = false}) {
-      if (v == null) {
-        if (required) {
-          return DateTime.now().toIso8601String();
-        }
-        return DateTime.now().toIso8601String();
-      }
-      if (v is int) return DateTime.fromMillisecondsSinceEpoch(v).toIso8601String();
-      if (v is String) return v;
-      return DateTime.now().toIso8601String();
-    }
-
-    m[colCreatedAt] = toIso(m[colCreatedAt], required: true);
+    m[colCreatedAt] = TimeHelper.toIso(m[colCreatedAt], required: true);
     if (m[colUpdatedAt] != null) {
       m[colUpdatedAt] = (m[colUpdatedAt] is int)
         ? DateTime.fromMillisecondsSinceEpoch(m[colUpdatedAt] as int).toIso8601String()
