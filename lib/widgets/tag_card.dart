@@ -11,8 +11,6 @@ class TagCard extends StatelessWidget {
     required this.updatedAt,
   });
 
-  static const _dateStyle = TextStyle(fontSize: 8, color: Colors.blue);
-
   @override
   Widget build(BuildContext context) {
 
@@ -21,7 +19,7 @@ class TagCard extends StatelessWidget {
     const double extraPerChar = 10;
 
     // 幅を計算
-    final int length = text.length;
+    final int length = name.length;
     final double width = length <= 3
         ? baseWidth
         : baseWidth + (length - 3) * extraPerChar;

@@ -41,7 +41,7 @@ class _WordListScreenState extends State<HitWordsListScreen> {
       _query$
         .map((q) => q.trim())
         .debounceTime(const Duration(milliseconds: 300)),
-        _reload$.startWith(null),                 // ← 起動時も一度発火させる
+        _reload$,                 // ← 起動時も一度発火させる
         (q, _) => q,                              // ← いつでも最新の検索語で再検索
     )
     // switchMapはDBからデータを取得し表示させている最中にインプットデータが変わった時、古いインプットデータでの処理結果表示をキャンセルする。
@@ -53,6 +53,11 @@ class _WordListScreenState extends State<HitWordsListScreen> {
       }
     })
     .shareReplay(maxSize: 1);  //直近1回の検索結果をキャッシュする
+
+    // 初回は1フレーム後に発火（UIを先に表示してからロード）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_reload$.isClosed) _reload$.add(null);
+    });
   }
 
   @override
@@ -128,6 +133,8 @@ class _WordListScreenState extends State<HitWordsListScreen> {
                       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       itemExtent: 115,
                       itemCount: hits.length,
+                      addAutomaticKeepAlives: false, // ← 見切れたセルの保持をやめる
+                      cacheExtent: 200,              // ← 先読みを控えめに（必要に応じて調整）
                       itemBuilder: (context, index) {
                         final h = hits[index];
                         return RepaintBoundary(
