@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/home_screen.dart';
 import 'package:original_dict_app/screens/quiz/quiz_screen.dart';
-import 'package:original_dict_app/screens/tags/tag_screen.dart';
+import 'package:original_dict_app/screens/tags/tag_list_screen.dart';
 import 'package:original_dict_app/screens/wordlist/word_list_screen.dart';
 //import 'package:original_dict_app/data/app_database.dart';
 
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         '/home': (_) => const HomeScreen(),
         '/quiz': (_) => const QuizScreen(),
         '/words': (_) => const WordListScreen(),
-        '/tags': (_) => const TagScreen()
+        '/tags': (_) => const TagListScreen()
       },
     );
   }
