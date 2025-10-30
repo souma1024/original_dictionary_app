@@ -77,11 +77,11 @@ git add (file or directory)
 git commit -m "メッセージ"
 # ステージングされた変更を1つの履歴としてローカルに保存する
 
-git switch -c (new branch name)
+git switch -c (new branch)
 #　ローカルリポジトリに新しいブランチを作成し、そのブランチに移動する
 
-git checkout (branch name)
-# (branch name)に移動する
+git checkout (branch)
+# (branch)に移動する
 
 git status
 # 現在のGitリポジトリの状態を確認するためのコマンド
@@ -159,7 +159,7 @@ original_dictionary_app> fvm flutter run
 
 ### 7.無事にマージできたら完了
 
-### 8. リモートリポジトリgithubに作成されたブランチを削除 (<span style="color:red;">mainブランチは絶対に削除しない！！</span>)
+### 8. リモートリポジトリgithubに作成されたブランチを削除
 
 ### 9. 1に戻り新しい機能を開発
 
@@ -194,6 +194,7 @@ lib/
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro) <br>
 [Flutter公式サイト](https://flutter.ctrnost.com/) <br>
 [Flutter公式アイコン](https://api.flutter.dev/flutter/material/Icons-class.html)
+
 
 
 
