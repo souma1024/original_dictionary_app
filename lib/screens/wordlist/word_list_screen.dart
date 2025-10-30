@@ -133,12 +133,12 @@ class _WordListScreenState extends State<WordListScreen> {
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       itemCount: _cards.length,
+                      itemExtent: 115,
                       itemBuilder: (context, index) {
                         final word = _cards[index];
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           child: SizedBox(
-                            height: 115,
                             child: WordCard(
                               id: word.card.id,
                               name: word.card.name,
