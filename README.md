@@ -19,8 +19,12 @@
 
 #### ライブラリ・パッケージ
 - flutter (SDK)
-- cupertino_icons
-※今後追加予定
+- cupertino_icons: ^1.0.8
+- sqflite: ^2.4.2
+- path: ^1.9.1
+- intl: ^0.20.2
+- jp_transliterate: 1.0.5
+- rxdart: ^0.28.0
 
 #### コーディング規約
 - Lint: flutter_lints（analysis_options.yaml）
@@ -190,6 +194,7 @@ lib/
 [Dart・Flutterの基本的な文法と仕組み](https://zenn.dev/heyhey1028/books/flutter-basics/viewer/dart_intro) <br>
 [Flutter公式サイト](https://flutter.ctrnost.com/) <br>
 [Flutter公式アイコン](https://api.flutter.dev/flutter/material/Icons-class.html)
+
 
 
 
