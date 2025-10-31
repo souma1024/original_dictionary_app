@@ -8,7 +8,7 @@ import 'package:original_dict_app/screens/wordlist/word_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // ← これ必須
-  //await AppDatabase.instance.database;      // ← DB初期化を待つ
+  //await AppDatabase.instance.resetForDev();      // ← DB初期化を待つ
   runApp(const MyApp());
 }
 

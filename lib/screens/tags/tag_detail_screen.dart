@@ -44,6 +44,7 @@ class _TagDetailScreenState extends State<TagDetailScreen> {
       final updated = TagEntity(
         id: _tag!.id,
         name: _nameCtrl.text.trim(),
+        color: _tag!.color,
         createdAt: _tag!.createdAt, // 変更せず
         updatedAt: DateTime.now(),  // UI側でも更新（repo側でも上書きされる想定）
       );

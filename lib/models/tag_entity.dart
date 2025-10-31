@@ -1,12 +1,14 @@
 class TagEntity {
    final int? id;
    final String name;
+   final String color;
    final DateTime createdAt; 
    final DateTime updatedAt;
 
     TagEntity({
       this.id,
       required this.name,
+      required this.color,
       required this.createdAt,
       required this.updatedAt
     });
@@ -15,6 +17,7 @@ class TagEntity {
     return TagEntity(
       id: map['id'] as int?,
       name: map['name'] as String,
+      color: (map['color'] as String?) ?? '0xFFD7F0FF',
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String)
     );
@@ -24,6 +27,7 @@ class TagEntity {
     return {
       'id': id,
       'name': name,
+      'color': color,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
