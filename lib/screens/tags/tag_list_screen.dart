@@ -3,8 +3,9 @@ import 'package:original_dict_app/models/tag_entity.dart';
 import 'package:original_dict_app/repository/tag_repository.dart';
 import 'package:original_dict_app/screens/tags/tag_detail_screen.dart';
 import 'package:original_dict_app/screens/tags/tag_create_screen.dart';
-import 'package:original_dict_app/utils/db/time_helper.dart';
 import 'package:original_dict_app/screens/common_scaffold.dart';
+import 'package:original_dict_app/widgets/small_dot.dart';
+import 'package:original_dict_app/widgets/tag_card.dart';
 
 class TagListScreen extends StatefulWidget {
   const TagListScreen({super.key});
@@ -110,17 +111,15 @@ class _TagListScreenState extends State<TagListScreen> {
 
           return RefreshIndicator(
             onRefresh: _reload,
-            child: ListView.builder(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               itemCount: tags.length,
-              itemExtent: 64,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final t = tags[i];
-                return ListTile(
-                  title: Text(t.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  subtitle: Text('更新: ${TimeHelper.formatDateTime(t.updatedAt)}', style: const TextStyle(fontSize: 12)),
-                  onTap: () => _onTap(t),
-                  onLongPress: () => _onLongPress(t),
-                );
+                final dotColor = SmallDot.colorFromName(t.name);
+
+                return TagCard(tags: t, onTap: _onTap, onLongPress: _onLongPress, dotColor: dotColor);
               },
             ),
           );
