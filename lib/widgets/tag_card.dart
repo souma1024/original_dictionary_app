@@ -30,7 +30,7 @@ class TagCard extends StatelessWidget {
         onTap: () async => await onTap(tags),
         onLongPress: () async => await onLongPress(tags),
         child: ListTile(
-          leading: SmallDot(color: dotColor),
+          leading: SmallDot(color: dotColor, size: 10, rightMargin: 12),
           title: Text(
             tags.name,
             maxLines: 1,
