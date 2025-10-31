@@ -68,6 +68,7 @@ class AppDatabase {
           CREATE TABLE tags (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL UNIQUE,
+            color TEXT NOT NULL DEFAULT '0xFFD7F0FF',
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
           );

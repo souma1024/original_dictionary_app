@@ -8,6 +8,7 @@ class TagRepository {
   static const String table = 'tags';
   static const String colId = 'id';
   static const String colName = 'name';
+  static const String colColor = 'color';
   static const String colCreatedAt = 'created_at';
   static const String colUpdatedAt = 'updated_at';
 

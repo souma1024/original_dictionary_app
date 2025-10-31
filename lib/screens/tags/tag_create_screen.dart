@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:original_dict_app/repository/tag_repository.dart';
 import 'package:original_dict_app/models/tag_entity.dart';
+import 'package:original_dict_app/widgets/small_dot.dart';
 
 
 class TagCreateScreen extends StatefulWidget {
@@ -58,9 +59,10 @@ class _TagCreateScreenState extends State<TagCreateScreen> {
     setState(() => _saving = true);
     try {
       final now = DateTime.now();
-      final tag = TagEntity(id: null, name: _nameCtrl.text.trim(), createdAt: now, updatedAt: now);
+      final dotColorHex = SmallDot.colorToHexString(SmallDot.colorFromName(_nameCtrl.text.trim()));
+      final tag = TagEntity(id: null, name: _nameCtrl.text.trim(), color: dotColorHex, createdAt: now, updatedAt: now);
       final newId = await _repo.insertTag(tag);
-      final created = TagEntity(id: newId, name: tag.name, createdAt: tag.createdAt, updatedAt: tag.updatedAt);
+      final created = TagEntity(id: newId, name: tag.name, color: tag.color, createdAt: tag.createdAt, updatedAt: tag.updatedAt);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('作成しました')));
