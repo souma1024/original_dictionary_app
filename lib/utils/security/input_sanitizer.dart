@@ -52,3 +52,12 @@ String colExpr(String col, Iterable<String> rawTokens, {int maxTokens = 8}) {
   // 例: name:"東京"* "駅"*
   return toksSafe.map((t) => '$col:$t').join(' ');
 }
+
+String sanitizeSimple(String input) {
+  return input
+    .replaceAll("'", "’")
+    .replaceAll('"', '”')
+    .replaceAll(";", "；")
+    .replaceAll("--", "—")
+    .trim();
+}
