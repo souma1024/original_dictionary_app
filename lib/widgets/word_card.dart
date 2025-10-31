@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:original_dict_app/controller/word_selection_scope.dart';
 import 'package:original_dict_app/widgets/favorite_mark.dart';
+import 'package:original_dict_app/controller/word_selection_scope.dart';
+import 'package:flutter/services.dart';
 import 'package:original_dict_app/widgets/selection_check.dart';
 import 'package:original_dict_app/screens/wordlist/word_detail_screen.dart';
 
@@ -41,9 +41,8 @@ class _WordCardState extends State<WordCard> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = WordSelectionScope.of<int>(context);
-    final inSelect = controller.selectionMode;
-    final isSelected = controller.selectedIds.contains(widget.id);
+    final sel = WordSelectionScope.of<int>(context);
+    final theme = Theme.of(context);
 
     // 選択中の見た目
     final cardColor = isSelected

@@ -20,7 +20,7 @@ class CardRepository {
   static const String colIntroHira = 'intro_hira';
   static const String colIsFave = 'is_fave';
   static const String colCreatedAt = 'created_at';
-  static const String colUpdatedAt = 'updated_at';
+  static const String colUpdatedAt = 'updated_at';  
   static const String colCardId = 'card_id';
   static const int displaylimitCards = 7;
 
@@ -64,7 +64,7 @@ class CardRepository {
         FROM $fts4Table
         JOIN $table AS m ON m.$colId = $fts4Table.$colCardId
         WHERE $fts4Table MATCH ?
-        ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
+        ORDER BY m.$colUpdatedAt DESC, m.$colId DESC
         LIMIT ? OFFSET ?
       ''';
       final rows = await db.rawQuery(sql, [matchExpr, limit, offset]);
@@ -88,7 +88,7 @@ class CardRepository {
             (${List.filled(normTokens.length, 'm.intro LIKE ? ESCAPE \'\\\'').join(' AND ')})
             OR
             (${List.filled(normTokens.length, 'm.intro_hira LIKE ? ESCAPE \'\\\'').join(' AND ')})
-          ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
+          ORDER BY m.$colUpdatedAt DESC, m.$colId DESC
           LIMIT ? OFFSET ?
         ''';
       final args = [...normTokens, ...normTokens, ...normTokens, ...normTokens, limit, offset];
@@ -108,7 +108,7 @@ class CardRepository {
     final rows = await db.query(
       table, // $table
       columns: [colId, colName, colIntro, colIsFave, colUpdatedAt], // 必要列だけ
-      orderBy: 'datetime($colUpdatedAt) DESC, $colId DESC',
+      orderBy: '$colUpdatedAt DESC, $colId DESC',
       limit: limit,
       offset: offset,
     );
@@ -137,7 +137,7 @@ class CardRepository {
         m.$colCreatedAt,
         m.$colUpdatedAt
       FROM $table AS m
-      ORDER BY datetime(m.$colUpdatedAt) DESC, m.$colId DESC
+      ORDER BY m.$colUpdatedAt DESC, m.$colId DESC
       LIMIT ? OFFSET ?
     ''';
     final rows = await db.rawQuery(sql, [limit, offset]);
