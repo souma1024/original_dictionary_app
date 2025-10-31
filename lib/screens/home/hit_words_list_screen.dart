@@ -45,7 +45,7 @@ class _WordListScreenState extends State<HitWordsListScreen> {
         (q, _) => q,                              // ← いつでも最新の検索語で再検索
     )
     // switchMapはDBからデータを取得し表示させている最中にインプットデータが変わった時、古いインプットデータでの処理結果表示をキャンセルする。
-    .switchMap((q) => Stream.fromFuture(repo.listForDisplay(q)))
+    .switchMap((q) => Stream.fromFuture(repo.listForDisplay(q, limit: 5)))
     .doOnData((hits) {
       if (_selection.selectionMode) {
         final visible = hits.map((h) => h.card.id).toSet();
