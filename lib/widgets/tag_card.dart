@@ -1,50 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:original_dict_app/utils/db/time_helper.dart';
+import 'package:original_dict_app/widgets/small_dot.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
 
 class TagCard extends StatelessWidget {
-
-  final String name;
-  final String updatedAt;
+  final TagEntity tags;
+  final Future<void> Function(TagEntity) onTap;
+  final Future<void> Function(TagEntity) onLongPress;
+  final Color color;
+  final Color dotColor;
 
   const TagCard({
     super.key,
-    required this.name,
-    required this.updatedAt,
+    required this.tags,
+    required this.onTap,
+    required this.onLongPress,
+    this.color = const Color.fromARGB(255, 231, 242, 249), // 薄い水色
+    required this.dotColor
   });
 
   @override
   Widget build(BuildContext context) {
-
-    // 1文字あたりの幅を決める（調整可能）
-    const double baseWidth = 60;
-    const double extraPerChar = 10;
-
-    // 幅を計算
-    final int length = name.length;
-    final double width = length <= 3
-        ? baseWidth
-        : baseWidth + (length - 3) * extraPerChar;
-
-    return SizedBox(
-      width: width,
-      height: 50,
-      child: Card(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start, // 縦方向の揃え方
-            children: [
-              Text(
-                name,
-                style: const TextStyle(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+    return Card(
+      color: color, // 薄い水色
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      clipBehavior: Clip.antiAlias, // InkWellのリップルを角丸に合わせる
+      child: InkWell(
+        onTap: () async => await onTap(tags),
+        onLongPress: () async => await onLongPress(tags),
+        child: ListTile(
+          leading: SmallDot(color: dotColor),
+          title: Text(
+            tags.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
+          subtitle: Text(
+            '更新: ${TimeHelper.formatDateTime(tags.updatedAt)}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         ),
       ),
     );
