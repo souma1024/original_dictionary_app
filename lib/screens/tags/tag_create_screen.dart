@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:original_dict_app/repository/tag_repository.dart';
 import 'package:original_dict_app/models/tag_entity.dart';
-import 'package:original_dict_app/widgets/small_dot.dart';
-
+import 'package:original_dict_app/utils/color_util.dart';
 
 class TagCreateScreen extends StatefulWidget {
   const TagCreateScreen({super.key});
@@ -59,8 +58,9 @@ class _TagCreateScreenState extends State<TagCreateScreen> {
     setState(() => _saving = true);
     try {
       final now = DateTime.now();
-      final dotColorHex = SmallDot.colorToHexString(SmallDot.colorFromName(_nameCtrl.text.trim()));
-      final tag = TagEntity(id: null, name: _nameCtrl.text.trim(), color: dotColorHex, createdAt: now, updatedAt: now);
+      final input = _nameCtrl.text.trim();
+      final nameBasedColor = ColorUtil.nameToColorHex(input);
+      final tag = TagEntity(id: null, name: input, color: nameBasedColor, createdAt: now, updatedAt: now);
       final newId = await _repo.insertTag(tag);
       final created = TagEntity(id: newId, name: tag.name, color: tag.color, createdAt: tag.createdAt, updatedAt: tag.updatedAt);
       if (!mounted) return;

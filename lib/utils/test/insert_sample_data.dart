@@ -1,9 +1,17 @@
 import 'package:original_dict_app/repository/card_repository.dart';
+import 'package:original_dict_app/repository/tag_repository.dart';
+import 'package:original_dict_app/repository/card_tag_repository.dart';
 import 'package:original_dict_app/models/card_entity.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
 
-
+/// カード・タグ・中間テーブルをまとめて挿入する
 Future<void> insertSampleData() async {
-  final List<CardEntity> testCards = [
+  final cardRepo = CardRepository.instance;
+  final tagRepo = TagRepository.instance;
+  final cardTagRepo = CardTagRepository.instance;
+
+  // --- カード ---
+  final List<CardEntity> cards = [
     CardEntity(
       name: "富士山麓オウムなく",
       nameHira: "ふじさんろくおうむなく",
@@ -49,143 +57,62 @@ Future<void> insertSampleData() async {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
-    CardEntity(
-      name: "温故知新",
-      nameHira: "おんこちしん",
-      intro: "昔のことを学び、新しい知識を得る。",
-      introHira: "むかしのことをまなび、あたらしいちしきをえる。",
-      isFave: false,
+  ];
+
+  final insertedIds = <int>[];
+  for (final c in cards) {
+    final id = await cardRepo.insertCard(c);
+    insertedIds.add(id);
+  }
+
+  // --- タグ ---
+  final List<TagEntity> tags = [
+    TagEntity(
+      name: '自然',
+      color: '#81C784', // 緑系
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
-    CardEntity(
-      name: "以心伝心",
-      nameHira: "いしんでんしん",
-      intro: "言葉を交わさずとも心が通じ合うこと。",
-      introHira: "ことばをかわさずともしんがつうじあうこと。",
-      isFave: false,
+    TagEntity(
+      name: '名言',
+      color: '#64B5F6', // 青系
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
-    CardEntity(
-      name: "天衣無縫",
-      nameHira: "てんいむほう",
-      intro: "飾り気がなく、自然体であること。",
-      introHira: "かざりけがなく、しぜんたいであること。",
-      isFave: true,
+    TagEntity(
+      name: '季節',
+      color: '#FFD54F', // 黄系
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
-    CardEntity(
-      name: "灯台下暗し",
-      nameHira: "とうだいもとくらし",
-      intro: "身近なことほど気づきにくいというたとえ。",
-      introHira: "みぢかなことほどきづきにくいというたとえ。",
-      isFave: false,
+    TagEntity(
+      name: '歴史',
+      color: '#BA68C8', // 紫系
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
-    CardEntity(
-      name: "百花繚乱",
-      nameHira: "ひゃっかりょうらん",
-      intro: "多くの花が一斉に咲くように、優れた人が並び立つこと。",
-      introHira: "おおくのはながいっせいにさくように、すぐれたひとがならびたつこと。",
-      isFave: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "青天白日",
-      nameHira: "せいてんはくじつ",
-      intro: "疑いが晴れて堂々と胸を張れること。",
-      introHira: "うたがいがはれてどうどうとむねをはれること。",
-      isFave: false,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "山紫水明",
-      nameHira: "さんしすいめい",
-      intro: "山や川が美しく澄んでいる自然の風景。",
-      introHira: "やまやかわがうつくしくすんでいるしぜんのふうけい。",
-      isFave: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "春夏秋冬",
-      nameHira: "しゅんかしゅうとう",
-      intro: "一年の四つの季節。四季折々の変化。",
-      introHira: "いちねんのよっつのきせつ。しきおりおりのへんか。",
-      isFave: false,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "雨過天晴",
-      nameHira: "うかてんせい",
-      intro: "困難を乗り越えて事態が好転すること。",
-      introHira: "こんなんをのりこえてじたいがこうてんすること。",
-      isFave: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "静寂無音",
-      nameHira: "せいじゃくむおん",
-      intro: "音が全くせず、非常に静まり返っていること。",
-      introHira: "おとがまったくせず、ひじょうにしずまりかえっていること。",
-      isFave: false,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "光陰矢の如し",
-      nameHira: "こういんやのごとし",
-      intro: "月日が過ぎるのは非常に早いというたとえ。",
-      introHira: "つきひがすぎるのはひじょうにはやいというたとえ。",
-      isFave: false,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "紅葉一片",
-      nameHira: "こうよういっぺん",
-      intro: "一枚のもみじの葉が風に舞う情景。",
-      introHira: "いちまいのもみじのはがかぜにまうじょうけい。",
-      isFave: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "雪月風花",
-      nameHira: "せつげつふうか",
-      intro: "自然の美しい景物を愛でる風雅な心。",
-      introHira: "しぜんのうつくしいけいぶつをめでるふうがなこころ。",
-      isFave: false,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "一期一笑",
-      nameHira: "いちごいっしょう",
-      intro: "出会いの瞬間に笑顔を交わすことの尊さ。",
-      introHira: "であいのしゅんかんにえがおをかわすことのとうとさ。",
-      isFave: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    CardEntity(
-      name: "星河一天",
-      nameHira: "せいがいってん",
-      intro: "夜空に満天の星が輝くさま。",
-      introHira: "よぞらにまんてんのほしがかがやくさま。",
-      isFave: false,
+    TagEntity(
+      name: '人生訓',
+      color: '#E57373', // 赤系
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
   ];
-  for (final card in testCards) {
-    await CardRepository.instance.insertCard(card);
+
+  final tagIds = <int>[];
+  for (final t in tags) {
+    final id = await tagRepo.insertTag(t);
+    tagIds.add(id);
   }
+
+  // --- 紐付け（カード ↔ タグ） ---
+  // 例としてランダムではなくテーマ的に関連づけ
+  await cardTagRepo.attachTag(insertedIds[0], tagIds[0]); // 富士山麓→自然
+  await cardTagRepo.attachTag(insertedIds[1], tagIds[2]); // 桜花爛漫→季節
+  await cardTagRepo.attachTag(insertedIds[2], tagIds[4]); // 一期一会→人生訓
+  await cardTagRepo.attachTag(insertedIds[3], tagIds[3]); // 風林火山→歴史
+  await cardTagRepo.attachTag(insertedIds[4], tagIds[0]); // 花鳥風月→自然
+  await cardTagRepo.attachTag(insertedIds[4], tagIds[2]); // 花鳥風月→季節
+
+  print('✅ サンプルデータを挿入しました');
 }

@@ -3,12 +3,12 @@ import 'package:original_dict_app/screens/home/home_screen.dart';
 import 'package:original_dict_app/screens/quiz/quiz_screen.dart';
 import 'package:original_dict_app/screens/tags/tag_list_screen.dart';
 import 'package:original_dict_app/screens/wordlist/word_list_screen.dart';
-// import 'package:original_dict_app/data/app_database.dart';
+//import 'package:original_dict_app/data/app_database.dart';
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // ← これ必須
-  // await AppDatabase.instance.resetForDev();      // ← DB初期化を待つ
+  //await AppDatabase.instance.resetForDev();      // ← DB初期化を待つ
   runApp(const MyApp());
 }
 

@@ -8,6 +8,8 @@ import 'package:original_dict_app/utils/delete_cards_utils.dart';
 import 'package:original_dict_app/widgets/confirm_delete_cards_dialog.dart';
 import 'package:original_dict_app/controller/word_selection_scope.dart';
 import 'package:original_dict_app/widgets/selection_toolbar.dart';
+import 'package:original_dict_app/repository/card_tag_repository.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
 
 class WordListScreen extends StatefulWidget {
   const WordListScreen({super.key});
@@ -23,6 +25,7 @@ class _WordListScreenState extends State<WordListScreen> {
   int _page = 0;
   int _total = 0;
   List<CardHit> _cards = [];
+  Map<int, List<TagEntity>> _tagMap = {};
   bool _isLoading = false;
 
   late final WordSelectionController<int> _selection;
@@ -48,10 +51,17 @@ class _WordListScreenState extends State<WordListScreen> {
     final offset = _page * limit;
     final rows = await repo.getCardsAsHits(limit: limit, offset: offset);
 
+    final ids = rows.map((h) => h.card.id).toList();
+
+    final tagMap = ids.isEmpty
+      ? <int, List<TagEntity>>{}
+      : await CardTagRepository.instance.getTagsByCardIds(ids);
+
     if (mounted) {
       setState(() {
         _cards = rows;
         _total = count;
+         _tagMap = tagMap;
         _isLoading = false;
       });
     }
@@ -131,22 +141,24 @@ class _WordListScreenState extends State<WordListScreen> {
                   // 本体リスト
                   Expanded(
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                       itemCount: _cards.length,
                       itemExtent: 115,
                       itemBuilder: (context, index) {
                         final word = _cards[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          child: SizedBox(
+                        final tags = _tagMap[word.card.id] ?? const <TagEntity>[];
+                        return SizedBox(
                             child: WordCard(
                               id: word.card.id,
                               name: word.card.name,
                               limitedIntro: word.card.intro,
                               isFave: word.card.isFave,
                               updatedAt: word.card.updatedAtText,
+                              tagList: tags, // ★ 左下にミニタグ表示
+                              onTagTap: (t) async {
+                                // 例: タグでフィルタ画面へ遷移 or 検索へ反映など
+                              },
                             ),
-                          ),
                         );
                       },
                     ),

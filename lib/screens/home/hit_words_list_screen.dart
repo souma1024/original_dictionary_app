@@ -9,6 +9,9 @@ import 'package:original_dict_app/controller/word_selection_controller.dart';
 import 'package:original_dict_app/utils/delete_cards_utils.dart';
 import 'package:original_dict_app/widgets/confirm_delete_cards_dialog.dart';
 import 'package:original_dict_app/widgets/selection_toolbar.dart';
+import 'package:original_dict_app/dto/hit_with_tags.dart';
+import 'package:original_dict_app/repository/card_tag_repository.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
 
 class HitWordsListScreen extends StatefulWidget {
   const HitWordsListScreen({super.key});
@@ -25,6 +28,7 @@ class _WordListScreenState extends State<HitWordsListScreen> {
   late final WordSelectionController<int> _selection;
   late final DeleteCardsUtils _deleteCards;
   final _reload$ = PublishSubject<Object?>();
+  late final Stream<List<HitWithTags>> _hitsWithTags$;
 
   @override
   void initState() {
@@ -53,6 +57,20 @@ class _WordListScreenState extends State<HitWordsListScreen> {
       }
     })
     .shareReplay(maxSize: 1);  //直近1回の検索結果をキャッシュする
+
+
+    _hitsWithTags$ = _hits$
+      .asyncMap((hits) async {
+        // 画面に出すカードIDを抽出
+        final ids = hits.map((h) => h.card.id).toList();
+        // まとめて tag を取得
+        final tagMap = await CardTagRepository.instance.getTagsByCardIds(ids);
+        // 合体して返す
+        return hits
+            .map((h) => HitWithTags(h, tagMap[h.card.id] ?? const <TagEntity>[]))
+            .toList();
+      })
+      .shareReplay(maxSize: 1);
 
     // 初回は1フレーム後に発火（UIを先に表示してからロード）
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -112,18 +130,18 @@ class _WordListScreenState extends State<HitWordsListScreen> {
           ),
           // 本体
           Expanded(
-            child: StreamBuilder<List<CardHit>>(
-              stream: _hits$,
+            child: StreamBuilder<List<HitWithTags>>(
+              stream: _hitsWithTags$,
               initialData: const [],
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text('読み込みに失敗しました: ${snapshot.error}'));
                 }
 
-                final hits = snapshot.data ?? const [];
+                final hitsWT = snapshot.data ?? const [];
                 final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
-                if (hits.isEmpty && !isLoading) {
+                if (hitsWT.isEmpty && !isLoading) {
                   return const Center(child: Text('該当する単語がありません'));
                 }
 
@@ -132,11 +150,12 @@ class _WordListScreenState extends State<HitWordsListScreen> {
                     ListView.builder(
                       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       itemExtent: 115,
-                      itemCount: hits.length,
+                      itemCount: hitsWT.length,
                       addAutomaticKeepAlives: false, // ← 見切れたセルの保持をやめる
                       cacheExtent: 200,              // ← 先読みを控えめに（必要に応じて調整）
                       itemBuilder: (context, index) {
-                        final h = hits[index];
+                        final h = hitsWT[index].hit;
+                        final tags = hitsWT[index].tags;
                         return RepaintBoundary(
                           child: WordCard(
                             key: ValueKey(h.card.id),
@@ -145,6 +164,10 @@ class _WordListScreenState extends State<HitWordsListScreen> {
                             limitedIntro: h.card.intro,
                             isFave: h.card.isFave,
                             updatedAt: h.card.updatedAtText,
+                            tagList: tags, // ★ ここで左下に表示される
+                            onTagTap: (t) async {
+                              // 例: タップでタグ絞り込みへ飛ぶ等、今はNOPならそのまま
+                            },
                           ),
                         );
                       },

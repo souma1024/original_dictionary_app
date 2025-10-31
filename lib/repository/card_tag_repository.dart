@@ -1,5 +1,6 @@
 import 'package:original_dict_app/data/app_database.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
 
 class CardTagRepository {
   CardTagRepository._();
@@ -72,4 +73,42 @@ class CardTagRepository {
       await attachTag(cardId, tagId);
     }
   }
+
+  Future<List<TagEntity>> getTagsByCard(int cardId) async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.rawQuery('''
+      SELECT t.id, t.name, t.color, t.updated_at
+      FROM $table ct
+      INNER JOIN tags t ON t.id = ct.$colTagId
+      WHERE ct.$colCardId = ?
+      ORDER BY t.name COLLATE NOCASE
+    ''', [cardId]);
+
+    return rows.map((r) => TagEntity.fromMap(r)).toList();
+  }
+
+  Future<Map<int, List<TagEntity>>> getTagsByCardIds(List<int> cardIds) async {
+    if (cardIds.isEmpty) return {};
+
+    final db = await AppDatabase.instance.database;
+
+    // IN句を安全に作成
+    final placeholders = List.filled(cardIds.length, '?').join(',');
+    final rows = await db.rawQuery('''
+      SELECT ct.$colCardId as card_id, t.id, t.name, t.color, t.updated_at
+      FROM $table ct
+      INNER JOIN tags t ON t.id = ct.$colTagId
+      WHERE ct.$colCardId IN ($placeholders)
+      ORDER BY ct.$colCardId, t.name COLLATE NOCASE
+    ''', cardIds);
+
+    final map = <int, List<TagEntity>>{};
+    for (final r in rows) {
+      final cardId = r['card_id'] as int;
+      final tag = TagEntity.fromMap(r);
+      (map[cardId] ??= []).add(tag);
+    }
+    return map;
+  }
+
 }
