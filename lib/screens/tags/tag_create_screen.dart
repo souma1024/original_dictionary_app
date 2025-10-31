@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:sqflite/sqflite.dart';
 import 'package:original_dict_app/repository/tag_repository.dart';
 import 'package:original_dict_app/models/tag_entity.dart';
-import 'package:sqflite/sqflite.dart';
 
 
 class TagCreateScreen extends StatefulWidget {
@@ -17,10 +18,39 @@ class _TagCreateScreenState extends State<TagCreateScreen> {
   final _nameCtrl = TextEditingController();
   bool _saving = false;
 
+  Timer? _debounce;
+  List<TagEntity> _suggestions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl.addListener(_onNameChanged);
+  }
+
   @override
   void dispose() {
+    _debounce?.cancel();
+    _nameCtrl.removeListener(_onNameChanged);
     _nameCtrl.dispose();
     super.dispose();
+  }
+
+  void _onNameChanged() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 250), () async {
+      final q = _nameCtrl.text.trim();
+      if (!mounted) return;
+      if (q.isEmpty) {
+        setState(() => _suggestions = []);
+        return;
+      }
+      final list = await _repo.searchSimilarTags(q);
+      if (!mounted) return;
+
+      // 完全一致は候補から除外（必要なら）
+      final filtered = list.where((t) => t.name != q).toList();
+      setState(() => _suggestions = filtered);
+    });
   }
 
   Future<void> _save() async {
@@ -78,6 +108,43 @@ class _TagCreateScreenState extends State<TagCreateScreen> {
                 },
                 onFieldSubmitted: (_) => _save(),
               ),
+
+              // 追加: サジェスト領域
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                child: _suggestions.isEmpty
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 220),
+                          child: Material(
+                            elevation: 1,
+                            borderRadius: BorderRadius.circular(8),
+                            child: ListView.separated(
+                              padding: EdgeInsets.zero,
+                              itemCount: _suggestions.length,
+                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              itemBuilder: (context, i) {
+                                final t = _suggestions[i];
+                                return ListTile(
+                                  dense: true,
+                                  title: Text(t.name),
+                                  onTap: () {
+                                    _nameCtrl.text = t.name;
+                                    _nameCtrl.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: t.name.length),
+                                    );
+                                    setState(() => _suggestions = []);
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
+
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: _saving ? null : _save,
