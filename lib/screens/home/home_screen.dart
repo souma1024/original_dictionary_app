@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/hit_words_list_screen.dart';
 import 'package:original_dict_app/utils/test/insert_sample_data.dart';
+import 'package:original_dict_app/screens/wordlist/word_edit_screen.dart';
 import 'package:original_dict_app/screens/common_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -27,7 +28,10 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       fab: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () { Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const WordEditScreen()),
+        );},
         child: const Icon(Icons.add),
       ),
     );
