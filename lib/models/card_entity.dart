@@ -6,9 +6,9 @@ class CardEntity {
   final String introHira;
   final bool isFave;
   final DateTime createdAt;
-  final DateTime updatedAt; //作成時は値が入らないので、null許容
+  final DateTime updatedAt;
 
-  // デフォルトコンストラクタ
+  // 通常のコンストラクタ
   CardEntity({
     this.id,
     required this.name,
@@ -17,23 +17,28 @@ class CardEntity {
     required this.introHira,
     required this.isFave,
     required this.createdAt,
-    required this.updatedAt
+    required this.updatedAt,
   });
 
-  // 名前付きコンストラクタ
+  // Map → CardEntity（DB読み込み時など）
   factory CardEntity.fromMap(Map<String, dynamic> map) {
     return CardEntity(
       id: map['id'] as int?,
-      name: map['name'] as String,
-      nameHira: map['name_hira'] as String, 
-      intro: map['intro'] as String,
-      introHira: map['intro_hira'] as String,
-      isFave: (map['is_fave'] as int) == 1,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String)
+      name: map['name']?.toString() ?? '',
+      nameHira: map['name_hira']?.toString() ?? '',
+      intro: map['intro']?.toString() ?? '',
+      introHira: map['intro_hira']?.toString() ?? '',
+      isFave: (map['is_fave'] ?? 0) == 1,
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: map['updated_at'] != null
+          ? DateTime.tryParse(map['updated_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
+  // CardEntity → Map（DB保存時など）
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -46,5 +51,4 @@ class CardEntity {
       'updated_at': updatedAt.toIso8601String(),
     };
   }
-
 }
