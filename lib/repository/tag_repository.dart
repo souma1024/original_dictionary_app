@@ -24,6 +24,36 @@ class TagRepository {
     return TagEntity.fromMap(m);
   }
 
+  Future<List<TagEntity>> searchSimilarTags(String query, {int limit = 8}) async {
+    final q = query.trim();
+    if (q.isEmpty) return [];
+    final db = await AppDatabase.instance.database;
+
+    // LIKE検索用にエスケープ
+    String esc(String s) => s
+        .replaceAll(r'\', r'\\')
+        .replaceAll('%', r'\%')
+        .replaceAll('_', r'\_');
+
+    final likeAny = '%${esc(q)}%';
+    final likePrefix = '${esc(q)}%';
+
+    final rows = await db.rawQuery(
+      '''
+      SELECT id, name, created_at, updated_at
+      FROM tags
+      WHERE name LIKE ? ESCAPE '\\'
+      ORDER BY
+        (name LIKE ? ESCAPE '\\') DESC,  -- 先頭一致を最優先
+        LENGTH(name) ASC,                -- 短い順
+        name ASC
+      LIMIT ?
+      ''',
+      [likeAny, likePrefix, limit],
+    );
+    return rows.map((r) => fromRow(r)).toList();
+  }
+
   Future<List<TagEntity>> getTags() async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(table);
