@@ -41,50 +41,45 @@ class _WordEditScreenState extends State<WordEditScreen> {
   }
 
   Future<void> _openTagSelector() async {
-    if (_allTags.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('タグがまだ登録されていません')),
-      );
-      return;
-    }
-
     final selected = await showDialog<List<TagEntity>>(
       context: context,
       builder: (context) {
         final tempSelected = List<TagEntity>.from(_selectedTags);
-        return AlertDialog(
-          title: const Text('タグを選択'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _allTags.map((tag) {
-                final isSelected = tempSelected.any((t) => t.id == tag.id);
-                return CheckboxListTile(
-                  title: Text(tag.name),
-                  value: isSelected,
-                  onChanged: (checked) {
-                    if (checked == true) {
-                      tempSelected.add(tag);
-                    } else {
-                      tempSelected.removeWhere((t) => t.id == tag.id);
-                    }
-                    // setStateではなくDialogのStatefulBuilderが望ましいが簡略化
-                    (context as Element).markNeedsBuild();
-                  },
-                );
-              }).toList(),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) => AlertDialog(
+            title: const Text('タグを選択'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: _allTags.map((tag) {
+                  final isSelected = tempSelected.any((t) => t.id == tag.id);
+                  return CheckboxListTile(
+                    title: Text(tag.name),
+                    value: isSelected,
+                    onChanged: (checked) {
+                      setStateDialog(() {
+                        if (checked == true) {
+                          tempSelected.add(tag);
+                        } else {
+                          tempSelected.removeWhere((t) => t.id == tag.id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, _selectedTags),
+                child: const Text('キャンセル'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, tempSelected),
+                child: const Text('OK'),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, _selectedTags),
-              child: const Text('キャンセル'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, tempSelected),
-              child: const Text('OK'),
-            ),
-          ],
         );
       },
     );

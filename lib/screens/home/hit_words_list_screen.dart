@@ -17,10 +17,10 @@ class HitWordsListScreen extends StatefulWidget {
   const HitWordsListScreen({super.key});
 
   @override
-  State<HitWordsListScreen> createState() => _WordListScreenState();
+  HitWordsListScreenState createState() => HitWordsListScreenState();
 }
 
-class _WordListScreenState extends State<HitWordsListScreen> {
+class HitWordsListScreenState extends State<HitWordsListScreen> {
   // 検索語を流すためのSubject
   final _query$ = BehaviorSubject<String>.seeded('');
 
@@ -111,6 +111,10 @@ class _WordListScreenState extends State<HitWordsListScreen> {
     } 
   }
 
+  void reload() {
+    if (!_reload$.isClosed) _reload$.add(null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WordSelectionScope<int>( // ★ ここでスコープ化
@@ -167,6 +171,9 @@ class _WordListScreenState extends State<HitWordsListScreen> {
                             tagList: tags, // ★ ここで左下に表示される
                             onTagTap: (t) async {
                               // 例: タップでタグ絞り込みへ飛ぶ等、今はNOPならそのまま
+                            },
+                            onNeedReload: () async {
+                              if (!_reload$.isClosed) _reload$.add(null);
                             },
                           ),
                         );
