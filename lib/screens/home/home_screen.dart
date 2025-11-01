@@ -20,7 +20,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(child: HitWordsListScreen()),
             ElevatedButton(  //これはテスト用、本番はボタンごと消す。
               onPressed: () async {
-                await insertSampleData();
+                await insertSampleData();   // カードとタグを先に挿入
+                await attachRandomTags();   // ランダムタグ付与を実行！
               },
               child: Text('サンプルデータ投入'),
             ),
