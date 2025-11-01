@@ -20,6 +20,28 @@ class CardEntity {
     required this.updatedAt,
   });
 
+  CardEntity copyWith({
+    int? id,
+    String? name,
+    String? nameHira,
+    String? intro,
+    String? introHira,
+    bool? isFave,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return CardEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameHira: nameHira ?? this.nameHira,
+      intro: intro ?? this.intro,
+      introHira: introHira ?? this.introHira,
+      isFave: isFave ?? this.isFave,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   // Map → CardEntity（DB読み込み時など）
   factory CardEntity.fromMap(Map<String, dynamic> map) {
     return CardEntity(
