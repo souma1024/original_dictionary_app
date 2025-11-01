@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/repository/tag_repository.dart';
-import 'package:original_dict_app/repository/card_tags_repository.dart';
+import 'package:original_dict_app/repository/card_tag_repository.dart';
 import 'package:original_dict_app/models/card_entity.dart';
 import 'package:original_dict_app/models/tag_entity.dart';
 import 'package:original_dict_app/utils/security/input_sanitizer.dart';
