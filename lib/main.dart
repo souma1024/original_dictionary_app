@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/home_screen.dart';
 import 'package:original_dict_app/screens/quiz/quiz_screen.dart';
+import 'package:original_dict_app/screens/tags/tag_list_screen.dart';
 import 'package:original_dict_app/screens/wordlist/word_list_screen.dart';
-import 'package:original_dict_app/data/app_database.dart';
-import 'package:original_dict_app/controller/word_selection_scope.dart';
-import 'package:original_dict_app/controller/word_collection_controller.dart' as collect;
+// import 'package:original_dict_app/data/app_database.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // ← これ必須
-  await AppDatabase.instance.database;      // ← DB初期化を待つ
-
-  runApp(
-    WordSelectionScope<int>(            // ★ <int> を忘れずに！
-      controller: collect.WordSelectionController<int>(), // ★ ここも<int>
-      child: const MyApp(),
-    ),
-  );
+  // await AppDatabase.instance.resetForDev();      // ← DB初期化を待つ
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -35,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/home': (_) => const HomeScreen(),
         '/quiz': (_) => const QuizScreen(),
         '/words': (_) => const WordListScreen(),
+        '/tags': (_) => const TagListScreen()
       },
     );
   }

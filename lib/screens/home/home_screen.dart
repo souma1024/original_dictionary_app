@@ -12,10 +12,10 @@ class HomeScreen extends StatelessWidget {
     return CommonScaffold(
       title: "ホーム",
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           children:  [
-            SizedBox(height: 16),
+            SizedBox(height: 4.0),
             // 検索結果リスト（残りの高さを全部使う）
             Expanded(child: HitWordsListScreen()),
             ElevatedButton(  //これはテスト用、本番はボタンごと消す。
