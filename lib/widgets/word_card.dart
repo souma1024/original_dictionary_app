@@ -18,6 +18,8 @@ class WordCard extends StatelessWidget {
   final Future<void> Function(TagEntity) onTagTap;
   final Future<void> Function(TagEntity) onTagLongPress;
 
+  final Future<void> Function()? onNeedReload;
+
   const WordCard({
     super.key,
     required this.id,
@@ -28,6 +30,7 @@ class WordCard extends StatelessWidget {
     this.tagList = const [],
     this.onTagTap = _noopTap,
     this.onTagLongPress = _noopTap,
+    this.onNeedReload,
   });
 
   static Future<void> _noopTap(TagEntity _) async {}
@@ -37,12 +40,16 @@ class WordCard extends StatelessWidget {
     final sel = WordSelectionScope.of<int>(context);
     final theme = Theme.of(context);
 
-    void openDetail(int cardId) {
-      Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => WordDetailScreen(cardId: cardId),
-      ),
+    Future<void> openDetail(int cardId) async {
+      final changed = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => WordDetailScreen(cardId: cardId),
+        ),
       );
+      if (changed == true) {
+        // 親から渡された「再読み込み」を呼ぶ
+        await onNeedReload?.call();
+      }
     }
     // 静的コンテンツ（再利用される）
     final staticBody = Padding(

@@ -158,6 +158,14 @@ class _WordListScreenState extends State<WordListScreen> {
                               onTagTap: (t) async {
                                 // 例: タグでフィルタ画面へ遷移 or 検索へ反映など
                               },
+                              onNeedReload: () async {
+                                final currentContext = context;
+                                await _reloadCurrentPage();
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(currentContext).showSnackBar(
+                                  const SnackBar(content: Text('変更を保存しました')),
+                                );
+                              },
                             ),
                         );
                       },
