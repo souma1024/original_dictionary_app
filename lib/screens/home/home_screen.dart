@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/screens/home/hit_words_list_screen.dart';
-import 'package:original_dict_app/utils/test/insert_sample_data.dart';
 import 'package:original_dict_app/screens/wordlist/word_edit_screen.dart';
 import 'package:original_dict_app/screens/common_scaffold.dart';
+// import 'package:original_dict_app/utils/test/insert_sample_data.dart';
 
 class HomeScreen extends StatelessWidget {
   final _hitWordsListKey = GlobalKey<HitWordsListScreenState>();
