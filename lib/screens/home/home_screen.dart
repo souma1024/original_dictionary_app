@@ -19,14 +19,14 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: 4.0),
             // 検索結果リスト（残りの高さを全部使う）
             Expanded(child: HitWordsListScreen(key: _hitWordsListKey)),
-            ElevatedButton(  //これはテスト用、本番はボタンごと消す。
-              onPressed: () async {
-                await insertSampleData();   // カードとタグを先に挿入
-                await attachRandomTags();   // ランダムタグ付与を実行！
-                _hitWordsListKey.currentState?.reload();
-              },
-              child: Text('サンプルデータ投入'),
-            ),
+            // ElevatedButton(  //これはテスト用、本番はボタンごと消す。
+            //   onPressed: () async {
+            //     await insertSampleData();   // カードとタグを先に挿入
+            //     await attachRandomTags();   // ランダムタグ付与を実行！
+            //     _hitWordsListKey.currentState?.reload();
+            //   },
+            //   child: Text('サンプルデータ投入'),
+            // ),
           ],
         ),
       ),

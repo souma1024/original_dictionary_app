@@ -115,7 +115,7 @@ class _TagListScreenState extends State<TagListScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               itemCount: tags.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
+              itemBuilder : (context, i) {
                 final t = tags[i];
                 return TagCard(tags: t, onTap: _onTap, onLongPress: _onLongPress, dotColor: ColorUtil.fromAny(t.color));
               },
