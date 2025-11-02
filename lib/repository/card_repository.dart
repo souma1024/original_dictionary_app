@@ -103,12 +103,13 @@ class CardRepository {
     int page = 0,
     int limit = displaylimitCards,
     int offset = 0,
+    String orderBy = 'updated_at DESC, id DESC', // ← 並び順を引数で指定可能に
   }) async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(
       table, // $table
       columns: [colId, colName, colIntro, colIsFave, colUpdatedAt], // 必要列だけ
-      orderBy: '$colUpdatedAt DESC, $colId DESC',
+      orderBy: orderBy,
       limit: limit,
       offset: offset,
     );
