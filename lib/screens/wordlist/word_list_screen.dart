@@ -65,7 +65,7 @@ class _WordListScreenState extends State<WordListScreen> {
         _isLoading = false;
       });
     }
-    // 選択モード中なら「画面に見えていないID」を選択から除去
+
     if (_selection.selectionMode) {
       final visible = rows.map((h) => h.card.id).toSet();
       _selection.pruneNotVisible(visible);
@@ -78,20 +78,14 @@ class _WordListScreenState extends State<WordListScreen> {
     _loadPage();
   }
 
-  Future<void> _reloadCurrentPage() async {
-    await _loadPage();
-  }
-
   void _prevPage() {
     if (_page == 0) return;
     setState(() => _page--);
     _loadPage();
   }
 
-  @override
-  void dispose() {
-    _selection.dispose();
-    super.dispose();
+  Future<void> _reloadCurrentPage() async {
+    await _loadPage();
   }
 
   void _changeOrder(String newOrder) {
@@ -102,20 +96,6 @@ class _WordListScreenState extends State<WordListScreen> {
     _loadPage();
   }
 
-  Future<void> _handleDeletePressed() async {
-    final ids = _selection.selectedIds.toList();
-    if (ids.isEmpty) return;
-
-    final ok = await confirmDeleteCardsDialog(context, ids.length);
-    if (ok != true) return;
-
-    await _deleteCards(ids); // repo.delete → selection.exit → onReload(_reloadCurrentPage)
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('削除しました')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final totalPages = (_total / limit).ceil().clamp(1, 9999);
@@ -123,28 +103,19 @@ class _WordListScreenState extends State<WordListScreen> {
 
     return WordSelectionScope<int>(
       controller: _selection,
-      child:  CommonScaffold(
+      child: CommonScaffold(
         title: '単語一覧',
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _cards.isEmpty
-              ? const Center(child: Text('登録された単語がありません'))
-              : Column(
+        body: Column(
+          children: [
+            // ✅ 並び替えボタン
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // 選択モード時だけツールバーを表示
-                  ValueListenableBuilder<bool>(
-                    valueListenable: _selection.selectionModeListenable,
-                    builder: (context, inSelect, _) {
-                      if (!inSelect) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                        child: SelectionToolbar(
-                          selection: _selection,
-                          onDeletePressed: _handleDeletePressed,
-                          onExitPressed: _selection.exit,
-                        ),
-                      );
-                    },
+                  ElevatedButton(
+                    onPressed: () => _changeOrder('updated_at DESC, id DESC'),
+                    child: const Text('更新日順'),
                   ),
 
                   Padding(
@@ -197,27 +168,54 @@ class _WordListScreenState extends State<WordListScreen> {
                       },
                     ),
                   ),
-                  const Divider(height: 1),
+                ],
+              ),
+            ),
 
-                  // ページャ
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: _page > 0 ? _prevPage : null,
-                          child: const Text('<< 前へ'),
-                        ),
-                        Text('$currentPage / $totalPages'),
-                        TextButton(
-                          onPressed: (_page + 1) * limit < _total ? _nextPage : null,
-                          child: const Text('次へ >>'),
-                        ),
-                      ],
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _cards.isEmpty
+                  ? const Center(child: Text('登録された単語がありません'))
+                  : ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: _cards.length,
+                itemExtent: 115,
+                itemBuilder: (context, index) {
+                  final word = _cards[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: WordCard(
+                      id: word.card.id,
+                      name: word.card.name,
+                      limitedIntro: word.card.intro,
+                      isFave: word.card.isFave,
+                      updatedAt: word.card.updatedAtText,
                     ),
+                  );
+                },
+              ),
+            ),
+
+            // ✅ ページャ
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: _page > 0 ? _prevPage : null,
+                    child: const Text('<< 前へ'),
+                  ),
+                  Text('$currentPage / $totalPages'),
+                  TextButton(
+                    onPressed: (_page + 1) * limit < _total ? _nextPage : null,
+                    child: const Text('次へ >>'),
                   ),
                 ],
+              ),
+            ),
+          ],
         ),
       ),
     );
