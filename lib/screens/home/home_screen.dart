@@ -5,7 +5,8 @@ import 'package:original_dict_app/screens/wordlist/word_edit_screen.dart';
 import 'package:original_dict_app/screens/common_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final _hitWordsListKey = GlobalKey<HitWordsListScreenState>();
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +18,12 @@ class HomeScreen extends StatelessWidget {
           children:  [
             SizedBox(height: 4.0),
             // 検索結果リスト（残りの高さを全部使う）
-            Expanded(child: HitWordsListScreen()),
+            Expanded(child: HitWordsListScreen(key: _hitWordsListKey)),
             ElevatedButton(  //これはテスト用、本番はボタンごと消す。
               onPressed: () async {
-                await insertSampleData();
+                await insertSampleData();   // カードとタグを先に挿入
+                await attachRandomTags();   // ランダムタグ付与を実行！
+                _hitWordsListKey.currentState?.reload();
               },
               child: Text('サンプルデータ投入'),
             ),
@@ -28,10 +31,19 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       fab: FloatingActionButton(
-        onPressed: () { Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const WordEditScreen()),
-        );},
+        onPressed: () async {
+          final changed = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const WordEditScreen()),
+          );
+
+          if (!context.mounted) return;
+
+          if (changed == true) {
+            // カードを追加後にリストを再読み込み
+            _hitWordsListKey.currentState?.reload(); 
+          }
+        },
         child: const Icon(Icons.add),
       ),
     );

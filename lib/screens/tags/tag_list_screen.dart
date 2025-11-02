@@ -5,7 +5,7 @@ import 'package:original_dict_app/screens/tags/tag_detail_screen.dart';
 import 'package:original_dict_app/screens/tags/tag_create_screen.dart';
 import 'package:original_dict_app/screens/common_scaffold.dart';
 import 'package:original_dict_app/widgets/tag_card.dart';
-import 'package:original_dict_app/widgets/small_dot.dart';
+import 'package:original_dict_app/utils/color_util.dart';
 
 class TagListScreen extends StatefulWidget {
   const TagListScreen({super.key});
@@ -117,7 +117,7 @@ class _TagListScreenState extends State<TagListScreen> {
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final t = tags[i];
-                return TagCard(tags: t, onTap: _onTap, onLongPress: _onLongPress, dotColor: SmallDot.colorFromHexString(t.color));
+                return TagCard(tags: t, onTap: _onTap, onLongPress: _onLongPress, dotColor: ColorUtil.fromAny(t.color));
               },
             ),
           );

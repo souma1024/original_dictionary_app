@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:original_dict_app/repository/card_repository.dart';
 import 'package:original_dict_app/repository/tag_repository.dart';
-import 'package:original_dict_app/repository/card_tags_repository.dart';
+import 'package:original_dict_app/repository/card_tag_repository.dart';
 import 'package:original_dict_app/models/card_entity.dart';
 import 'package:original_dict_app/models/tag_entity.dart';
 import 'package:original_dict_app/utils/security/input_sanitizer.dart';
@@ -20,6 +20,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
   bool _loading = true;
   bool _isEditing = false;
   bool _isSaving = false;
+  bool _changed = false;
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -119,16 +120,19 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
       );
 
       await CardRepository.instance.updateCard(updated);
+      final existing = await CardTagRepository.instance.getTagIdsByCard(_card!.id!);
+      final next = _selectedTags.where((t) => t.id != null).map((t) => t.id!).toSet();
+      final cur = existing.toSet();
 
       // タグ更新
-      final existing = await CardTagRepository.instance.getTagIdsByCard(_card!.id!);
-      for (final tid in existing) {
+      final toDetach = cur.difference(next);
+      final toAttach = next.difference(cur);
+
+      for (final tid in toDetach) {
         await CardTagRepository.instance.detachTag(_card!.id!, tid);
       }
-      for (final tag in _selectedTags) {
-        if (tag.id != null) {
-          await CardTagRepository.instance.attachTag(_card!.id!, tag.id!);
-        }
+      for (final tid in toAttach) {
+        await CardTagRepository.instance.attachTag(_card!.id!, tid);
       }
 
       setState(() {
@@ -136,26 +140,61 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
         _isEditing = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('変更を保存しました')),
-      );
+      if (context.mounted) {
+        if (!mounted) return;
+        Navigator.of(context).pop(true);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('保存中にエラーが発生しました: $e')),
-      );
+      if (context.mounted) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('保存中にエラーが発生しました: $e')),
+        );
+      }
     } finally {
-      setState(() => _isSaving = false);
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: !_isSaving,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return; // すでにpop済みなら何もしない
+
+        // 編集中かつ未保存の変更がある場合の確認
+        if (_isEditing) {
+          final discard = await showDialog<bool>(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('変更を破棄しますか？'),
+              content: const Text('保存されていない変更があります。'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('キャンセル'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('破棄して戻る'),
+                ),
+              ],
+            ),
+          );
+
+          if (discard == true && context.mounted) {
+            Navigator.pop(context, _changed); // ← 戻る時に変更フラグを返す
+          }
+        } else {
+          if (context.mounted) Navigator.pop(context, _changed);
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
-        title: Text(_card?.name ?? '読み込み中...'),
         actions: [
           // 編集中のみタグ選択ボタンを表示
-          if (_isEditing)
+          if (_isEditing) 
             IconButton(
               icon: const Icon(Icons.local_offer_outlined),
               tooltip: 'タグを選択',
@@ -242,6 +281,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
           ),
         ),
       ),
+      )
     );
   }
 }

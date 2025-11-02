@@ -1,6 +1,12 @@
 String limitTextLength(String text) {
-  if (text.length > 30) {
-    return '${text.substring(0, 30)}....';
+   final firstLine = text.split('\n').first;
+  if (text.length > 19) {
+    return '${text.substring(0, 19)}...';
   }
+
+  if (text.contains('\n')) {
+    return '$firstLine...';
+  }
+
   return text;
 }

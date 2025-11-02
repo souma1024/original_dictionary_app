@@ -14,12 +14,19 @@ class TagEntity {
     });
 
   factory TagEntity.fromMap(Map<String, dynamic> map ){
+
+    DateTime safeParseDate(dynamic value) {
+      if (value == null) return DateTime.fromMillisecondsSinceEpoch(0);
+      if (value is DateTime) return value;
+      return DateTime.tryParse(value.toString()) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
     return TagEntity(
       id: map['id'] as int?,
       name: map['name'] as String,
-      color: (map['color'] as String?) ?? '0xFFD7F0FF',
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String)
+      color: (map['color'] as String?) ?? '#FFD7F0FF',
+      createdAt: safeParseDate(map['created_at']),
+      updatedAt: safeParseDate(map['updated_at'])
     );
   }
 

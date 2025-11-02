@@ -4,6 +4,8 @@ import 'package:original_dict_app/widgets/favorite_mark.dart';
 import 'package:original_dict_app/controller/word_selection_scope.dart';
 import 'package:original_dict_app/widgets/selection_check.dart';
 import 'package:original_dict_app/screens/wordlist/word_detail_screen.dart';
+import 'package:original_dict_app/widgets/mini_tag_chip.dart';
+import 'package:original_dict_app/models/tag_entity.dart';
 
 class WordCard extends StatelessWidget {
   final int id;
@@ -12,6 +14,12 @@ class WordCard extends StatelessWidget {
   final bool isFave;
   final String updatedAt;
 
+  final List<TagEntity> tagList;
+  final Future<void> Function(TagEntity) onTagTap;
+  final Future<void> Function(TagEntity) onTagLongPress;
+
+  final Future<void> Function()? onNeedReload;
+
   const WordCard({
     super.key,
     required this.id,
@@ -19,22 +27,31 @@ class WordCard extends StatelessWidget {
     required this.limitedIntro,
     required this.isFave,
     required this.updatedAt,
+    this.tagList = const [],
+    this.onTagTap = _noopTap,
+    this.onTagLongPress = _noopTap,
+    this.onNeedReload,
   });
+
+  static Future<void> _noopTap(TagEntity _) async {}
 
   @override
   Widget build(BuildContext context) {
     final sel = WordSelectionScope.of<int>(context);
     final theme = Theme.of(context);
 
-    void openDetail(int cardId) {
-      Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => WordDetailScreen(cardId: cardId),
-      ),
+    Future<void> openDetail(int cardId) async {
+      final changed = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => WordDetailScreen(cardId: cardId),
+        ),
       );
+      if (changed == true) {
+        // 親から渡された「再読み込み」を呼ぶ
+        await onNeedReload?.call();
+      }
     }
-
-     // 静的コンテンツ（再利用される）
+    // 静的コンテンツ（再利用される）
     final staticBody = Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -58,12 +75,36 @@ class WordCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Text(
-              updatedAt,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
+          const SizedBox(height: 1),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // 左：タグ（横スクロール1行固定）
+              Expanded(
+                child: SizedBox(
+                  height: 28, // MiniTagChipの高さに合わせて調整(24〜28目安)
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.zero,
+                    itemCount: tagList.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 2),
+                    itemBuilder: (context, i) {
+                      final t = tagList[i];
+                      return MiniTagChip(
+                        tag: t,
+                        onTap: onTagTap,
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 右：更新日（不要ならこの2行を削除）
+              Text(
+                updatedAt,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
           ),
         ],
       ),
