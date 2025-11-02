@@ -96,6 +96,20 @@ class _WordListScreenState extends State<WordListScreen> {
     _loadPage();
   }
 
+  Future<void> _handleDeletePressed() async {
+    final ids = _selection.selectedIds.toList();
+    if (ids.isEmpty) return;
+
+    final ok = await confirmDeleteCardsDialog(context, ids.length);
+    if (ok != true) return;
+
+    await _deleteCards(ids); // repo.delete → selection.exit → onReload(_reloadCurrentPage)
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('削除しました')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalPages = (_total / limit).ceil().clamp(1, 9999);
